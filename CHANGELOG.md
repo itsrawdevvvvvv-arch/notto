@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-10-19
+
+### Fixed
+- **Notes restored from another app are visible again.** A backup made elsewhere usually has no card colour on each note, and a card without a colour draws no background — so the dark card text sat on the dark page and the notes looked empty in dark mode (they happened to still be readable in light mode). Restored notes are now given a valid card colour, and every note is checked for the fields the app needs (colour, title, checklist items, timestamp) both when it is restored and when the app opens. Existing notes are repaired on launch, so no re-restore is needed.
+
 ## [1.7.1] - 2026-10-19
 
 ### Fixed
@@ -145,7 +150,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.7.1...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.7.2...HEAD
+[1.7.2]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.2
 [1.7.1]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.1
 [1.7.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.0
 [1.6.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.6.0

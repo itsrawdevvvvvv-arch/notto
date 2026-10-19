@@ -1,0 +1,10 @@
+Notto 1.7.2
+
+Fixed
+• Notes restored from another app are visible again.
+  A backup made elsewhere usually has no card colour, and a card without a
+  colour draws no background — so in dark mode the text sat on the dark page
+  and the notes looked empty. Restored notes now get a valid card colour.
+• Every note is checked for the fields the app needs (colour, title, checklist
+  items, timestamp) when it is restored and when the app opens, so notes already
+  restored are repaired on launch — no need to restore again.

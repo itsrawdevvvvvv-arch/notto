@@ -770,7 +770,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <button class="ib2" id="remtest">Send a test notification</button>
   <p class="hint">Notto will nudge you once a day to write something down.</p>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.7.1</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.7.2</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -851,15 +851,42 @@ const cur=()=>S.n.find(n=>n.id===S.id);
 const ago=t=>{const m=(Date.now()-t)/6e4|0;return m<1?'just now':m<60?m+'m ago':m<1440?(m/60|0)+'h ago':(m/1440|0)+'d ago'};
 const words=n=>((n.html||'').replace(/<[^>]+>/g,' ').trim().split(/\s+/).filter(Boolean).length);
 const ART=`<svg class="art" viewBox="0 0 100 120" preserveAspectRatio="xMidYMid slice"><rect width="100" height="120" fill="#f6cf3d"/><g fill="none" stroke="#e0a91c" stroke-width="1.2"><circle cx="62" cy="64" r="14"/><circle cx="62" cy="64" r="24"/><circle cx="62" cy="64" r="34"/><circle cx="62" cy="64" r="44"/><circle cx="62" cy="64" r="56"/></g><path d="M20 120c0-22 14-30 42-30s40 8 40 30z" fill="#241611"/><rect x="52" y="68" width="20" height="26" rx="8" fill="#8c4a2b"/><ellipse cx="62" cy="55" rx="16" ry="20" fill="#a15a35"/><path d="M45 52c0-14 8-22 18-22s16 8 15 18c-5-6-10-8-17-8s-13 4-16 12z" fill="#241611"/></svg>`;
+const COLS=['or','ye','cr','gr','bl'];
+/* Make any note safe to render: gives it a valid card colour, a title,
+   checklist items and so on. Used for notes restored from a backup. */
+function fixNote(n,i){
+ const o=(n&&typeof n==='object')?n:{};
+ const idx=(typeof i==='number')?i:0;
+ const type=['note','todo','img','board'].indexOf(o.type)>=0?o.type:'note';
+ const c=COLS.indexOf(o.c)>=0?o.c:COL[idx%COL.length];
+ const r={
+  id:(typeof o.id==='number'&&isFinite(o.id))?o.id:(Date.now()+idx),
+  type,c,
+  title:(typeof o.title==='string')?o.title:'',
+  html:(typeof o.html==='string')?o.html:'',
+  fav:o.fav?1:0,
+  t:(typeof o.t==='number'&&isFinite(o.t))?o.t:(Date.now()+idx)
+ };
+ if(type==='todo')r.items=(Array.isArray(o.items)&&o.items.length)?o.items.map(x=>({t:String((x&&x.t)||''),d:(x&&x.d)?1:0})):[{t:'',d:0}];
+ if(o.cv)r.cv=o.cv;
+ if(o.cover)r.cover=o.cover;
+ if(o.pv)r.pv=o.pv;
+ if(o.cvd)r.cvd=o.cvd;
+ if(typeof o.car==='number'&&isFinite(o.car))r.car=o.car;
+ if(o.gid)r.gid=o.gid;
+ if(typeof o.meta==='string'&&o.meta)r.meta=o.meta;
+ return r;
+}
 function card(n,i){
+ const col=COLS.indexOf(n.c)>=0?n.c:COL[i%COL.length];
  const im0=n.cv||n.cover||n.pv;if(im0)return `<article class="card cvr ${n.type} in" style="--i:${Math.min(i,8)};aspect-ratio:${n.car?(+n.car).toFixed(4):'340/380'}" data-id="${n.id}" aria-label="${esc(n.title)}"><img src="${im0}" alt="" decoding="async">${n.title&&(n.cover||n.pv)&&!n.cv?`<div class="bt">${esc(n.title)}</div>`:''}<button class="hb ${n.fav?'on':''}" data-a="fav" aria-label="Mark important">${ic('heart')}</button></article>`;
  const hb=`<button class="hb ${n.fav?'on':''}" data-a="fav" aria-label="Mark important">${ic('heart')}</button>`;
  let b;
- if(n.type==='todo')b=`<div class="ct">${esc(n.title)}</div>${hb}<div class="rows">${n.items.slice(0,4).map((x,j)=>`<div class="row ${x.d?'d':''}"><button class="ck ${x.d?'on':''}" data-a="ck" data-j="${j}" aria-label="Toggle">${ic('check')}</button>${esc(x.t)}</div>`).join('')}</div>`;
- else if(n.type==='img')b=`<div class="imgc"><div class="t"><div class="ct">${esc(n.title)}</div><div class="cm">Updated ${ago(n.t)}</div></div>${n.cover?`<img src="${n.cover}" alt="">`:ART}${hb}</div>`;
+ if(n.type==='todo')b=`<div class="ct">${esc(n.title||'')}</div>${hb}<div class="rows">${(n.items||[]).slice(0,4).map((x,j)=>`<div class="row ${x.d?'d':''}"><button class="ck ${x.d?'on':''}" data-a="ck" data-j="${j}" aria-label="Toggle">${ic('check')}</button>${esc(x.t)}</div>`).join('')}</div>`;
+ else if(n.type==='img')b=`<div class="imgc"><div class="t"><div class="ct">${esc(n.title||'')}</div><div class="cm">Updated ${ago(n.t)}</div></div>${n.cover?`<img src="${n.cover}" alt="">`:ART}${hb}</div>`;
  else if(n.c==='cr')b=`<div class="bub">${ic('note')}</div><div><div class="cm" style="margin:0 0 3px">${esc(n.meta||words(n)+' words')}</div><div class="ct" style="max-width:none">${esc(n.title)}</div></div>${hb}`;
  else b=`<div class="ct">${esc(n.title||'Untitled')}</div><div class="cm">${esc(n.meta||words(n)+' words')}</div>${hb}`;
- return `<article class="card c-${n.c} ${n.c==='cr'?'cr':''} ${n.type} in" style="--i:${Math.min(i,8)}" data-id="${n.id}">${b}</article>`;
+ return `<article class="card c-${col} ${col==='cr'?'cr':''} ${n.type} in" style="--i:${Math.min(i,8)}" data-id="${n.id}">${b}</article>`;
 }
 function ntext(n){let t=(n.title||'')+' ';if(n.type==='todo')t+=(n.items||[]).map(x=>x.t).join(' ');else if(n.type==='board')t+=((n.bd&&n.bd.items)||[]).map(i=>i.t||'').join(' ');else t+=String(n.html||'').replace(/<[^>]+>/g,' ');return t.toLowerCase()}
 function render(anim=true){
@@ -1596,7 +1623,7 @@ $('#bkpfile').onchange=async e=>{
   if(name.endsWith('.json')||raw.trim().charAt(0)==='{'){
    const j=JSON.parse(raw);const arr=Array.isArray(j)?j:j.notes;
    if(!Array.isArray(arr))throw Error('bad');
-   S.n=arr;if(Array.isArray(j.trash))TR=j.trash.map(n=>({n,at:Date.now()}));
+   S.n=arr.map(fixNote);if(Array.isArray(j.trash))TR=j.trash.map((x,k)=>({n:fixNote(x,k),at:Date.now()}));
    save();trashSave();render();toast('Backup restored');return;
   }
   const parts=raw.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
@@ -1606,7 +1633,7 @@ $('#bkpfile').onchange=async e=>{
    const lines=p.split('\n');
    const title=(lines[0]||'Imported note').replace(/^#+\s*/,'').slice(0,90);
    const rest=lines.slice(1).join('\n').trim();
-   S.n.unshift({id:now+i,type:'note',c:COL[i%3],title,html:rest?('<p>'+esc(rest).replace(/\n/g,'<br>')+'</p>'):'',fav:0,t:now+i});
+   S.n.unshift(fixNote({id:now+i,type:'note',c:COL[i%3],title,html:rest?('<p>'+esc(rest).replace(/\n/g,'<br>')+'</p>'):'',fav:0,t:now+i},i));
   });
   save();render();toast(parts.length+' note'+(parts.length===1?'':'s')+' imported');
  }catch(x){toast('Could not restore that file')}
@@ -1620,7 +1647,7 @@ $('#trashlist').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;co
 $('#gfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const r=await shrink(f,1000);
  if(window.__gcovTarget!=null){const g=S.g.find(x=>x.id===window.__gcovTarget);window.__gcovTarget=null;if(!g)return;g.cover=r.d;delete g.cv;g.car=r.im.width/r.im.height;g.t=Date.now();save();render();if(gid===g.id)renderGroup();toast('Group cover updated');return}
  const n=S.n.find(x=>x.id===hid);if(!n)return;n.cover=r.d;delete n.cv;n.car=r.im.width/r.im.height;n.type='img';n.c='ye';n.t=Date.now();save();render();toast('Cover updated')}catch(x){toast(x.message||'Could not use that image')}};
-(async()=>{let r=await kv('get','notes');if(!r){try{r=JSON.parse(localStorage.getItem(K))}catch(e){}}if(r&&r.length)S.n=r;
+(async()=>{let r=await kv('get','notes');if(!r){try{r=JSON.parse(localStorage.getItem(K))}catch(e){}}if(r&&r.length)S.n=r;S.n=S.n.map(fixNote);
  const gg=await kv('get','groups');if(gg&&gg.length)S.g=gg;else{try{const s2=JSON.parse(localStorage.getItem(K+'.g'));if(s2&&s2.length)S.g=s2}catch(e){}}
  const t=await kv('get','trash');if(t&&t.length){const cut=Date.now()-2592e6;TR=t.filter(x=>x&&x.n&&(x.at||0)>cut)}
  await loadCF();applyFont();applyTheme();applyBg();render();
