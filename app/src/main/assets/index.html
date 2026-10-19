@@ -398,6 +398,47 @@ html.light .hint{color:#8a857c}
 html.light #set .chp{background:#efece6;color:#6f6a61}
 #cov [hidden]{display:none!important}
 .hd{width:30px;height:30px}
+/* app font follows the setting */
+:root{font-family:var(--appfont, Montserrat, "Avenir Next", "Segoe UI", system-ui, sans-serif)}
+/* animated search bar */
+.sbar{height:0;opacity:0;overflow:hidden;border-width:0;margin-bottom:0;transition:height .5s var(--spring),opacity .28s var(--ease),margin-bottom .5s var(--spring),border-width .2s linear}
+.sbar.on{height:46px;opacity:1;margin-bottom:14px;border-width:1px}
+/* springier screen transitions */
+.edit,.sc2,.bdv{transition:transform .62s var(--spring),opacity .34s var(--ease),visibility 0s .62s}
+.edit.on,.sc2.on,.bdv.on{transition:transform .62s var(--spring),opacity .34s var(--ease),visibility 0s}
+.sc2{transform:translate3d(0,42px,0) scale(.985)}
+.bdv{transform:translate3d(0,42px,0) scale(.985)}
+/* soft depth in light theme */
+html.light .card{box-shadow:0 1px 2px rgba(20,16,10,.05),0 8px 22px rgba(20,16,10,.06)}
+html.light .card:active{box-shadow:0 1px 2px rgba(20,16,10,.06),0 4px 12px rgba(20,16,10,.06)}
+html.light .panel,html.light .sheet{box-shadow:0 14px 44px rgba(20,16,10,.16)}
+html.light .grp{box-shadow:0 1px 2px rgba(20,16,10,.04),0 6px 18px rgba(20,16,10,.05)}
+html.light .rb{box-shadow:0 1px 3px rgba(20,16,10,.07)}
+html.light .sbar{box-shadow:0 1px 3px rgba(20,16,10,.05),0 6px 16px rgba(20,16,10,.05)}
+html.light #plus{box-shadow:0 6px 16px rgba(20,16,10,.22)}
+html.light #mic{box-shadow:0 4px 14px rgba(20,16,10,.16)}
+html.light .chip{box-shadow:0 1px 2px rgba(20,16,10,.04)}
+/* fill the screen on large phones/tablets instead of letter-boxing */
+@media (min-width:520px){#app{max-width:none;height:100%;margin-top:0;border-radius:0}}
+/* system bar insets passed in from the native layer */
+.scroll{padding-top:calc(20px + var(--sat, env(safe-area-inset-top,0px)))}
+.escroll{padding-top:calc(14px + var(--sat, env(safe-area-inset-top,0px)))}
+.sc2{padding-top:calc(14px + var(--sat, env(safe-area-inset-top,0px)))}
+.dock{bottom:calc(22px + var(--sab, env(safe-area-inset-bottom,0px)))}
+.panel{bottom:calc(104px + var(--sab, env(safe-area-inset-bottom,0px)))}
+.sheet{bottom:calc(24px + var(--sab, env(safe-area-inset-bottom,0px)))}
+.kbd{bottom:calc(8px + var(--sab, env(safe-area-inset-bottom,0px)))}
+.tools{bottom:calc(24px + var(--sab, env(safe-area-inset-bottom,0px)))}
+.btop{top:calc(10px + var(--sat, env(safe-area-inset-top,0px)))}
+.btools{bottom:calc(18px + var(--sab, env(safe-area-inset-bottom,0px)))}
+.bctx,.bpick{bottom:calc(88px + var(--sab, env(safe-area-inset-bottom,0px)))}
+/* voice recordings inside notes */
+#body audio{width:100%;display:block;margin:8px 0;border-radius:14px}
+/* reminder controls */
+.swrow{justify-content:space-between}
+.sc2 input[type=checkbox]{width:44px;height:26px;accent-color:#f6cf3d;margin-left:auto}
+.sc2 input[type=time]{margin-left:auto;background:#161616;color:#fff;border:1px solid #333;border-radius:12px;padding:8px 12px;font:inherit;font-size:14px}
+html.light #set input[type=time]{background:#fff;color:#141414;border-color:#e2ddd3}
 html.light #set .chp.on{background:#141414;color:#fff}
 .sheet{max-height:74vh;overflow-y:auto;scrollbar-width:none}
 .sheet::-webkit-scrollbar{display:none}
@@ -431,7 +472,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <div class="scroll" id="sc">
    <div class="top"><div class="brand"><b></b>Notto</div><div class="hr"><button class="rb" id="searchb" aria-label="Search"><svg class="i"><use href="#i-search"/></svg></button><button class="rb" id="setb" aria-label="Settings"><svg class="i"><use href="#i-gear"/></svg></button><button class="rb" id="sortb" aria-label="Sort and filter"><svg class="i"><use href="#i-sort"/></svg></button></div></div>
    <h1 class="big">My<br>Notes</h1>
-   <div class="sbar" id="sbar" hidden><input id="search" type="text" placeholder="Search notes" autocomplete="off" autocapitalize="off"><button id="searchx" aria-label="Clear"><svg class="i"><use href="#i-plus"/></svg></button></div>
+   <div class="sbar" id="sbar"><input id="search" type="text" placeholder="Search notes" autocomplete="off" autocapitalize="off"><button id="searchx" aria-label="Clear"><svg class="i"><use href="#i-plus"/></svg></button></div>
    <div class="chips" id="chips"></div>
    <div id="grid"></div>
   </div>
@@ -494,7 +535,12 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <div class="rw"><button class="ib2" id="bkp">Backup</button><button class="ib2" id="rst">Restore</button></div>
   <button class="ib2" id="trashb">Recycle bin</button>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.1.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>Reminders</h3>
+  <label class="swrow">Daily reminder<input type="checkbox" id="remon"></label>
+  <label>Time<input type="time" id="remtime" value="20:00"></label>
+  <p class="hint">Notto will nudge you once a day to write something down.</p>
+ </div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.2.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -531,7 +577,7 @@ try{const r=JSON.parse(localStorage.getItem(K));if(r&&r.length)S.n=r}catch(e){}
 const DB=new Promise(ok=>{try{const r=indexedDB.open('notto',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>ok(null)}catch(e){ok(null)}});
 const kv=(m,k,v)=>DB.then(d=>d?new Promise(ok=>{const t=d.transaction('kv',m==='get'?'readonly':'readwrite'),o=t.objectStore('kv'),r=m==='get'?o.get(k):o.put(v,k);r.onsuccess=()=>ok(r.result);r.onerror=()=>ok()}):null);
 let st;const save=()=>{clearTimeout(st);st=setTimeout(()=>DB.then(d=>{if(d)kv('put','notes',S.n);else try{localStorage.setItem(K,JSON.stringify(S.n))}catch(e){}}),300)};
-let ST={theme:'dark',bgc:'',pat:'dots'};try{const _s=JSON.parse(localStorage.getItem('notto.set'));if(_s)Object.assign(ST,_s)}catch(e){}
+let ST={theme:'dark',bgc:'',pat:'dots',font:''};try{const _s=JSON.parse(localStorage.getItem('notto.set'));if(_s)Object.assign(ST,_s)}catch(e){}
 const setSave=()=>{try{localStorage.setItem('notto.set',JSON.stringify(ST))}catch(e){}};
 let TR=[];const trashSave=()=>DB.then(d=>{if(d)kv('put','trash',TR)});
 const lum=h=>{const n=parseInt(String(h).slice(1),16);return(.299*(n>>16)+.587*(n>>8&255)+.114*(n&255))/255};
@@ -540,7 +586,7 @@ const ago=t=>{const m=(Date.now()-t)/6e4|0;return m<1?'just now':m<60?m+'m ago':
 const words=n=>((n.html||'').replace(/<[^>]+>/g,' ').trim().split(/\s+/).filter(Boolean).length);
 const ART=`<svg class="art" viewBox="0 0 100 120" preserveAspectRatio="xMidYMid slice"><rect width="100" height="120" fill="#f6cf3d"/><g fill="none" stroke="#e0a91c" stroke-width="1.2"><circle cx="62" cy="64" r="14"/><circle cx="62" cy="64" r="24"/><circle cx="62" cy="64" r="34"/><circle cx="62" cy="64" r="44"/><circle cx="62" cy="64" r="56"/></g><path d="M20 120c0-22 14-30 42-30s40 8 40 30z" fill="#241611"/><rect x="52" y="68" width="20" height="26" rx="8" fill="#8c4a2b"/><ellipse cx="62" cy="55" rx="16" ry="20" fill="#a15a35"/><path d="M45 52c0-14 8-22 18-22s16 8 15 18c-5-6-10-8-17-8s-13 4-16 12z" fill="#241611"/></svg>`;
 function card(n,i){
- const im0=n.cv||n.pv;if(im0)return `<article class="card cvr ${n.type} in" style="--i:${Math.min(i,8)}" data-id="${n.id}" aria-label="${esc(n.title)}"><img src="${im0}" alt="" decoding="async">${n.pv&&!n.cv?`<div class="bt">${esc(n.title)}</div>`:''}<button class="hb ${n.fav?'on':''}" data-a="fav" aria-label="Mark important">${ic('heart')}</button></article>`;
+ const im0=n.cv||n.cover||n.pv;if(im0)return `<article class="card cvr ${n.type} in" style="--i:${Math.min(i,8)};aspect-ratio:${n.car?(+n.car).toFixed(4):'340/380'}" data-id="${n.id}" aria-label="${esc(n.title)}"><img src="${im0}" alt="" decoding="async">${n.title&&(n.cover||n.pv)&&!n.cv?`<div class="bt">${esc(n.title)}</div>`:''}<button class="hb ${n.fav?'on':''}" data-a="fav" aria-label="Mark important">${ic('heart')}</button></article>`;
  const hb=`<button class="hb ${n.fav?'on':''}" data-a="fav" aria-label="Mark important">${ic('heart')}</button>`;
  let b;
  if(n.type==='todo')b=`<div class="ct">${esc(n.title)}</div>${hb}<div class="rows">${n.items.slice(0,4).map((x,j)=>`<div class="row ${x.d?'d':''}"><button class="ck ${x.d?'on':''}" data-a="ck" data-j="${j}" aria-label="Toggle">${ic('check')}</button>${esc(x.t)}</div>`).join('')}</div>`;
@@ -564,7 +610,7 @@ function render(anim=true){
  $('#chips').innerHTML=[['all','All'],['imp','Important'],['todo','To-do']].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-k="${k}">${l}${k==='all'?`<i>${S.n.length}</i>`:''}</button>`).join('');
 }
 $('#chips').onclick=e=>{const b=e.target.closest('.chip');if(b){S.f=b.dataset.k;render()}};
-$('#searchb').onclick=()=>{const b=$('#sbar');b.hidden=!b.hidden;if(!b.hidden)setTimeout(()=>$('#search').focus(),60);else{S.q='';$('#search').value='';render(false)}};
+$('#searchb').onclick=()=>{const b=$('#sbar'),on=!b.classList.contains('on');b.classList.toggle('on',on);if(on)setTimeout(()=>$('#search').focus(),120);else{S.q='';$('#search').value='';render(false)}};
 $('#search').oninput=e=>{S.q=e.target.value;render(false)};
 $('#searchx').onclick=()=>{$('#search').value='';S.q='';render(false);$('#search').focus()};
 $('#grid').onclick=e=>{
@@ -582,6 +628,8 @@ gd.addEventListener('pointermove',e=>{if(hp&&Math.hypot(e.clientX-hp[0],e.client
 ['pointerup','pointercancel','pointerleave'].forEach(t=>gd.addEventListener(t,()=>clearTimeout(hold)));
 gd.addEventListener('contextmenu',e=>e.preventDefault());
 $('#sheet').onclick=e=>{
+ const vb=e.target.closest('[data-v]');
+ if(vb){app.classList.remove('mn');if(vb.dataset.v==='dictate')voice();else record();return}
  const sb=e.target.closest('[data-so]'),sf=e.target.closest('[data-sf]');
  if(sb){S.sort=sb.dataset.so;app.classList.remove('mn');render();toast('Sorted');return}
  if(sf){S.f=sf.dataset.sf;app.classList.remove('mn');render();toast('Filtered');return}
@@ -601,9 +649,9 @@ const setDock=o=>app.classList.toggle('open',o);
 $('#plus').onclick=()=>setDock(!app.classList.contains('open'));
 $('#scrim').onclick=()=>{setDock(false);app.classList.remove('mn')};
 $('#panel').onclick=e=>{const b=e.target.closest('.pi');if(!b)return;const i=+b.dataset.i;setDock(false);
- if(i===0)newN('note');else if(i===1)newN('todo');else if(i===2)newN('note',true);else if(i===3)$('#file').click();else if(i===4)voice();else if(i===7)openAI();else if(i===5)newBoard();
+ if(i===0)newN('note');else if(i===1)newN('todo');else if(i===2)newN('note',true);else if(i===3)$('#file').click();else if(i===4)voiceMenu();else if(i===7)openAI();else if(i===5)newBoard();
  else{S.f=['imp','todo','all'][i-5];$('#sc').scrollTo({top:0,behavior:'smooth'});render()}};
-$('#mic').onclick=voice;
+$('#mic').onclick=voiceMenu;
 $('#sortb').onclick=()=>{const so=S.sort||'recent',f=S.f;
  $('#sheet').innerHTML=`<b>Sort by</b>`+[['recent','Newest first'],['old','Oldest first'],['az','Title A\u2013Z'],['za','Title Z\u2013A']].map(([k,l])=>`<button data-so="${k}"><span class="tick">${k===so?ic('check'):''}</span>${l}</button>`).join('')
  +`<b>Show only</b>`+[['all','All notes'],['imp','Important'],['todo','Checklists'],['note','Notes'],['img','Images'],['board','Moodboards']].map(([k,l])=>`<button data-sf="${k}"><span class="tick">${k===f?ic('check'):''}</span>${l}</button>`).join('');
@@ -615,7 +663,33 @@ function newN(type,sk,html,cover){
  if(cover)n.type='img',n.c='ye';
  S.n.unshift(n);render();openN(n.id,sk);return n;
 }
+function voiceMenu(){$('#sheet').innerHTML='<b>Voice</b><button data-v="dictate">'+ic('mic')+'Dictate \u2014 speech to text</button><button data-v="record">'+ic('mic')+'Record audio</button>';app.classList.add('mn')}
+let recorder=null,recBuf=[],recSrc=null;
+async function record(){
+ if(recorder){try{recorder.stop()}catch(e){}return}
+ try{
+  if(window.NottoBridge&&NottoBridge.requestMic)NottoBridge.requestMic();
+  recSrc=await navigator.mediaDevices.getUserMedia({audio:true});
+  recBuf=[];recorder=new MediaRecorder(recSrc);
+  recorder.ondataavailable=e=>{if(e.data&&e.data.size)recBuf.push(e.data)};
+  recorder.onstop=async()=>{try{recSrc.getTracks().forEach(t=>t.stop())}catch(e){}
+   const mt=(recorder&&recorder.mimeType)||'audio/webm';const blob=new Blob(recBuf,{type:mt});recorder=null;recSrc=null;
+   const d=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(blob)});
+   const nn=newN('note',false,'<p><audio controls preload="metadata" src="'+d+'"></audio></p>');nn.title='Voice recording';save();render();toast('Recording saved')};
+  recorder.start();toast('Recording\u2026 open Voice again to stop');
+ }catch(e){recorder=null;toast('Microphone unavailable')}
+}
+window.__speech=(type,text)=>{
+ if(type==='start'){toast('Listening\u2026');return}
+ if(type==='partial'){if(text)toast(text.slice(0,48));return}
+ if(type==='final'){if(!text){toast('Did not catch that');return}const nn=newN('note',false,'<p>'+esc(text)+'</p>');nn.title='Voice note';save();render();toast('Voice note added');return}
+ if(text==='unavailable')toast('Speech to text is not available on this device');
+ else if(text==='permission')toast('Microphone permission needed');
+ else if(text==='nomatch')toast('Did not catch that');
+ else toast('Could not hear anything');
+};
 function voice(){
+ if(window.NottoBridge&&NottoBridge.startSpeech){try{NottoBridge.startSpeech();return}catch(e){}}
  const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return toast('Voice dictation is not supported here');
  const r=new R();r.lang=navigator.language||'en-US';$('#mic').style.background='#fff';$('#mic').style.color='#000';
  r.onresult=e=>{const t=e.results[0][0].transcript;newN('note',false,'<p>'+esc(t)+'</p>').title='Voice note'};
@@ -671,7 +745,7 @@ $('#file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return
  const im=new Image(),u=URL.createObjectURL(f);
  im.onload=()=>{const s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);const d=c.toDataURL('image/jpeg',.8);
   if(S.id&&!body.hidden){body.focus();document.execCommand('insertHTML',false,`<img src="${d}" alt=""><p><br></p>`);const n=cur();if(!n.cover)n.cover=d;n.html=body.innerHTML;save()}
-  else newN('note',false,`<img src="${d}" alt="">`,d)};
+  else{const nn=newN('note',false,`<img src="${d}" alt="">`,d);nn.car=im.width/im.height}};
  im.src=u};
 /* selection + format */
 const sel=$('#sel');let raf;
@@ -818,7 +892,7 @@ $('#cup').onclick=()=>$('#cfile').click();
 $('#cfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const r=await shrink(f,800),m='m'+C.nid;C.imgs[m]=r.d;IM[m]=r.im;C.L.push({id:C.nid++,k:'img',m,x:170,y:190,s:.8,r:0,o:1,vis:1,lock:0});cs=C.L.length-1;push();ctab(1);ui();dw()}catch(x){toast(x.message)}};
 $('#cu').onclick=()=>{if(hi>0){hi--;rs()}};$('#cr').onclick=()=>{if(hi<HS.length-1){hi++;rs()}};
 $('#cx').onclick=()=>$('#cov').classList.remove('on');
-$('#csave').onclick=()=>{const keep={};C.L.forEach(l=>{if(l.k==='img')keep[l.m]=C.imgs[l.m]});cs=-1;dw(1);const n=S.n.find(x=>x.id===cid);n.cv=cc.toDataURL('image/jpeg',.85);n.cvd={bg:C.bg,pat:C.pat,nid:C.nid,L:C.L,imgs:keep};n.t=Date.now();save();$('#cov').classList.remove('on');render();toast('Cover saved')};
+$('#csave').onclick=()=>{const keep={};C.L.forEach(l=>{if(l.k==='img')keep[l.m]=C.imgs[l.m]});cs=-1;dw(1);const n=S.n.find(x=>x.id===cid);n.cv=cc.toDataURL('image/jpeg',.85);n.car=340/380;n.cvd={bg:C.bg,pat:C.pat,nid:C.nid,L:C.L,imgs:keep};n.t=Date.now();save();$('#cov').classList.remove('on');render();toast('Cover saved')};
 /* export */
 const loadI=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src});
 const dl=async(b,name)=>{const f=new File([b],name,{type:b.type});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e.name==='AbortError')return}
@@ -976,14 +1050,20 @@ $('#zfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f
 $('#aprev').onclick=e=>{if(!e.target.closest('#acr')||!AP)return;const n={id:Date.now(),type:AP.type,c:AP.type==='todo'?'or':COL[S.n.length%3],title:AP.title,html:AP.html||'',items:AP.items,fav:0,t:Date.now()};
  if(AP.cover){n.cover=AP.cover;n.type='img';n.c='ye'}S.n.unshift(n);save();render();$('#ai').classList.remove('on');openN(n.id);toast('Note created')};
 /* ---- v1.1 settings, theme, background, fonts, backup, recycle ---- */
+function applyFont(){const f=ST.font;document.documentElement.style.setProperty('--appfont',f?("'"+f+"', system-ui, sans-serif"):'Montserrat, "Avenir Next", "Segoe UI", system-ui, sans-serif')}
 function applyTheme(){let t=ST.theme||'system';if(t==='system')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';document.documentElement.classList.toggle('light',t==='light');const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t==='light'?'#f2f0eb':'#0b0b0b')}
-function applyBg(){const el=$('.list');if(!el)return;const light=document.documentElement.classList.contains('light');const c=ST.bgc||(light?'#f2f0eb':'#0b0b0b');const p=ST.pat||'dots';const dk=lum(c)<.45;const dot=dk?'rgba(255,255,255,.11)':'rgba(0,0,0,.11)';const line=dk?'rgba(255,255,255,.075)':'rgba(0,0,0,.075)';let img='none',size='auto';
+function applyBg(){const els=['.list','#set','#trashv'].map(x=>$(x)).filter(Boolean);if(!els.length)return;const light=document.documentElement.classList.contains('light');const c=ST.bgc||(light?'#f2f0eb':'#0b0b0b');const p=ST.pat||'dots';const dk=lum(c)<.45;const dot=dk?'rgba(255,255,255,.11)':'rgba(0,0,0,.11)';const line=dk?'rgba(255,255,255,.075)':'rgba(0,0,0,.075)';let img='none',size='auto';
  if(p==='dots'){img=`radial-gradient(circle,${dot} 1.1px,transparent 1.3px)`;size='9px 9px'}
  else if(p==='grid'){img=`linear-gradient(${line} 1px,transparent 1px),linear-gradient(90deg,${line} 1px,transparent 1px)`;size='22px 22px'}
  else if(p==='diagonal'){img=`repeating-linear-gradient(45deg,${line} 0 1px,transparent 1px 13px)`}
  else if(p==='circles'){img=`radial-gradient(circle,transparent 6px,${dot} 6.6px,transparent 7.6px)`;size='26px 26px'}
- el.style.background=c;el.style.backgroundImage=img;el.style.backgroundSize=size}
-function syncSet(){$$('#themeseg button').forEach(b=>b.classList.toggle('on',b.dataset.th===(ST.theme||'system')));$('#bgcol').value=(ST.bgc||'#0b0b0b');$$('#bgpats .chp').forEach(b=>b.classList.toggle('on',b.dataset.p===(ST.pat||'dots')));$('#allfonts').innerHTML=FN.map(f=>`<button class="chp" style="font-family:'${f[0]}',system-ui,sans-serif;font-weight:${f[1]}">${f[0]}</button>`).join('')}
+ els.forEach(el=>{el.style.background=c;el.style.backgroundImage=img;el.style.backgroundSize=size;el.style.backgroundColor=c})}
+function syncSet(){$$('#themeseg button').forEach(b=>b.classList.toggle('on',b.dataset.th===(ST.theme||'system')));$('#bgcol').value=(ST.bgc||'#0b0b0b');$$('#bgpats .chp').forEach(b=>b.classList.toggle('on',b.dataset.p===(ST.pat||'dots')));$('#allfonts').innerHTML=FN.map(f=>`<button class="chp ${(ST.font||'Montserrat')===f[0]?'on':''}" data-fn="${f[0]}" style="font-family:'${f[0]}',system-ui,sans-serif;font-weight:${f[1]}">${f[0]}</button>`).join('');$('#remon').checked=!!ST.rem;$('#remtime').value=ST.remtime||'20:00'}
+$('#allfonts').onclick=e=>{const b=e.target.closest('[data-fn]');if(!b)return;ST.font=b.dataset.fn;setSave();applyFont();syncSet()};
+$('#remon').onchange=()=>{const on=$('#remon').checked;
+ if(on){if(window.NottoBridge&&NottoBridge.requestNotif)NottoBridge.requestNotif();const t=($('#remtime').value||'20:00').split(':');if(window.NottoBridge&&NottoBridge.scheduleReminder)NottoBridge.scheduleReminder(+t[0],+t[1]);ST.rem=1;setSave();toast('Daily reminder on')}
+ else{if(window.NottoBridge&&NottoBridge.cancelReminder)NottoBridge.cancelReminder();ST.rem=0;setSave();toast('Reminder off')}};
+$('#remtime').onchange=()=>{ST.remtime=$('#remtime').value;setSave();if($('#remon').checked&&window.NottoBridge&&NottoBridge.scheduleReminder){const t=$('#remtime').value.split(':');NottoBridge.scheduleReminder(+t[0],+t[1]);toast('Reminder set')}};
 $('#setb').onclick=()=>{syncSet();$('#set').classList.add('on')};
 $('#setx').onclick=()=>$('#set').classList.remove('on');
 $('#themeseg').onclick=e=>{const b=e.target.closest('[data-th]');if(!b)return;ST.theme=b.dataset.th;setSave();applyTheme();applyBg();syncSet()};
@@ -1004,10 +1084,10 @@ $('#trashb').onclick=()=>{$('#set').classList.remove('on');$('#trashv').classLis
 $('#trashx').onclick=()=>$('#trashv').classList.remove('on');
 $('#trashclear').onclick=()=>{if(!TR.length)return;if(!confirm('Permanently delete everything in the recycle bin?'))return;TR=[];trashSave();renderTrash();toast('Recycle bin emptied')};
 $('#trashlist').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const i=+b.closest('.lr2').dataset.i;const t=TR[i];if(!t)return;if(b.dataset.t==='res'){TR.splice(i,1);trashSave();S.n.unshift(t.n);save();render();renderTrash();toast('Restored')}else{TR.splice(i,1);trashSave();renderTrash();toast('Deleted')}};
-$('#gfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const r=await shrink(f,1000);const n=S.n.find(x=>x.id===hid);if(!n)return;delete n.cv;delete n.cvd;n.cover=r.d;n.type='img';n.c='ye';n.t=Date.now();save();render();toast('Cover updated')}catch(x){toast(x.message||'Could not use that image')}};
+$('#gfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const r=await shrink(f,1000);const n=S.n.find(x=>x.id===hid);if(!n)return;delete n.cv;delete n.cvd;n.cover=r.d;n.car=r.im.width/r.im.height;n.type='img';n.c='ye';n.t=Date.now();save();render();toast('Cover updated')}catch(x){toast(x.message||'Could not use that image')}};
 (async()=>{let r=await kv('get','notes');if(!r){try{r=JSON.parse(localStorage.getItem(K))}catch(e){}}if(r&&r.length)S.n=r;
  const t=await kv('get','trash');if(t&&t.length){const cut=Date.now()-2592e6;TR=t.filter(x=>x&&x.n&&(x.at||0)>cut)}
- await loadCF();applyTheme();applyBg();render();
+ await loadCF();applyFont();applyTheme();applyBg();render();
  if(window.matchMedia)try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{if((ST.theme||'system')==='system'){applyTheme();applyBg()}})}catch(e){}})();
 })();
 </script>

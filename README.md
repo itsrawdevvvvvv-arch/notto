@@ -46,8 +46,10 @@ Notto is a tiny, no-nonsense note-taking app for Android. Write notes, build che
 - **Backup & restore** — export every note to one file, and import it back.
 - **Make it yours** — light or dark theme, dotted / grid / diagonal backgrounds, and any background colour.
 - **14 fonts, or your own** — choose from 14 built-in typefaces or import any .ttf/.otf/.woff font.
+- **Voice notes** — dictate with speech to text, or record audio right inside a note.
+- **Widget & reminders** — a home-screen widget, plus an optional daily nudge to write.
 - **Offline by design** — no account, no tracking, no network permission. Your notes live in local storage on your device.
-- **Small & fast** — one lightweight APK (about 0.4 MB), no third-party runtime.
+- **Small & fast** — one lightweight APK (about 0.6 MB), no third-party runtime.
 
 ## Download
 
@@ -136,7 +138,7 @@ Because the assets ship inside the APK and the fonts are bundled, the app is **f
 
 ## Privacy
 
-Notto collects nothing and sends nothing. There are no analytics, no ads and no network access. Read [`docs/PRIVACY.md`](docs/PRIVACY.md).
+Notto collects nothing and sends nothing. There are no analytics, no ads and no network access. It asks for the microphone only when you use a voice feature, and for notification permission only if you switch on reminders. Read [`docs/PRIVACY.md`](docs/PRIVACY.md).
 
 ## Contributing
 

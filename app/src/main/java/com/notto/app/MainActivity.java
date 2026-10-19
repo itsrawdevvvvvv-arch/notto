@@ -1,20 +1,30 @@
 package com.notto.app;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Base64;
-import android.view.ActionMode;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -23,24 +33,33 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Notto — a fast, offline notes app.
  *
  * The whole UI is a single self-contained HTML/CSS/JS document served from the
- * app assets. This activity hosts it in a hardened WebView and bridges the few
- * web APIs Android WebView does not implement natively (file exports).
+ * app assets. This activity hosts it in a WebView and bridges the few things a
+ * WebView cannot do by itself: saving exports, speech-to-text, and reminders.
  */
 public class MainActivity extends Activity {
 
     private static final int REQ_FILE = 1001;
+    private static final int REQ_MIC = 1002;
+    private static final int REQ_NOTIF = 1003;
     private static final String BG = "#0b0b0b";
+    static final String CHANNEL = "notto.reminders";
 
     private WebView web;
     private ValueCallback<Uri[]> filePathCallback;
+    private SpeechRecognizer recognizer;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -50,8 +69,9 @@ public class MainActivity extends Activity {
         Window w = getWindow();
         w.setStatusBarColor(Color.parseColor(BG));
         w.setNavigationBarColor(Color.parseColor(BG));
+        ensureChannel(this);
 
-        web = new NottoWebView(this);
+        web = new WebView(this);
         web.setBackgroundColor(Color.parseColor(BG));
 
         WebSettings s = web.getSettings();
@@ -96,11 +116,17 @@ public class MainActivity extends Activity {
                 try {
                     Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                     i.addCategory(Intent.CATEGORY_OPENABLE);
-                    String[] accept = params.getAcceptTypes();
+                    // Accept types such as ".ttf" are not MIME types; fall back to */*
+                    // so the system file picker still shows files.
                     String type = "*/*";
-                    if (accept != null && accept.length > 0 && accept[0] != null
-                            && accept[0].trim().length() > 0) {
-                        type = accept[0];
+                    String[] accept = params.getAcceptTypes();
+                    if (accept != null) {
+                        for (String a : accept) {
+                            if (a != null && a.indexOf('/') > 0) {
+                                type = a;
+                                break;
+                            }
+                        }
                     }
                     i.setType(type);
                     if (params.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE) {
@@ -113,11 +139,60 @@ public class MainActivity extends Activity {
                 }
                 return true;
             }
+
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            request.grant(request.getResources());
+                        } catch (Exception ignored) {
+                        }
+                    }
+                });
+            }
         });
+
+        // Pass system bar sizes to CSS so nothing sits under a notch or nav bar.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            web.setOnApplyWindowInsetsListener(new android.view.View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(android.view.View v, WindowInsets insets) {
+                    int top = 0, bottom = 0;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
+                        top = bars.top;
+                        bottom = bars.bottom;
+                    } else {
+                        top = insets.getSystemWindowInsetTop();
+                        bottom = insets.getSystemWindowInsetBottom();
+                    }
+                    setCssInsets(top, bottom);
+                    return insets;
+                }
+            });
+        }
 
         web.addJavascriptInterface(new Bridge(), "NottoBridge");
         web.loadUrl("file:///android_asset/index.html");
         setContentView(web);
+    }
+
+    private void setCssInsets(int topPx, int bottomPx) {
+        final float d = getResources().getDisplayMetrics().density;
+        final String js = String.format(Locale.US,
+                "document.documentElement.style.setProperty('--sat','%.1fpx');"
+                        + "document.documentElement.style.setProperty('--sab','%.1fpx');",
+                topPx / d, bottomPx / d);
+        if (web != null) {
+            web.post(new Runnable() {
+                @Override
+                public void run() {
+                    web.evaluateJavascript(js, null);
+                }
+            });
+        }
     }
 
     @Override
@@ -153,26 +228,17 @@ public class MainActivity extends Activity {
         }
     }
 
-    /**
-     * WebView that suppresses Android's own text-selection toolbar.
-     * Notto ships its own cut/copy/paste/select-all bar, so the native one is
-     * redundant (and it overlaps the app UI).
-     */
-    private static class NottoWebView extends WebView {
-        NottoWebView(Context context) {
-            super(context);
+    @Override
+    protected void onDestroy() {
+        if (recognizer != null) {
+            recognizer.destroy();
+            recognizer = null;
         }
-        @Override
-        public ActionMode startActionMode(ActionMode.Callback callback) {
-            return null;
-        }
-        @Override
-        public ActionMode startActionMode(ActionMode.Callback callback, int type) {
-            return null;
-        }
+        super.onDestroy();
     }
 
-    /** JS bridge: lets the web layer save exported files (PNG / PDF / TXT). */
+    // ------------------------------------------------------------------ bridge
+
     public class Bridge {
         @JavascriptInterface
         public void saveFile(String name, String dataUrl) {
@@ -239,6 +305,163 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void toastMsg(String message) {
             toast(message);
+        }
+
+        // ---- permissions ----
+
+        @JavascriptInterface
+        public void requestMic() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                    && checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC);
+            }
+        }
+
+        @JavascriptInterface
+        public void requestNotif() {
+            if (Build.VERSION.SDK_INT >= 33
+                    && checkSelfPermission("android.permission.POST_NOTIFICATIONS")
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, REQ_NOTIF);
+            }
+        }
+
+        // ---- speech to text (Android's built-in recogniser — free, no account) ----
+
+        @JavascriptInterface
+        public void startSpeech() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!SpeechRecognizer.isRecognitionAvailable(MainActivity.this)) {
+                        speechBack("error", "unavailable");
+                        return;
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                            && checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC);
+                        speechBack("error", "permission");
+                        return;
+                    }
+                    if (recognizer == null) {
+                        recognizer = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);
+                        recognizer.setRecognitionListener(new Listener());
+                    }
+                    Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                    i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                    i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toString());
+                    i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+                    i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+                    try {
+                        recognizer.startListening(i);
+                        speechBack("start", "");
+                    } catch (Exception e) {
+                        speechBack("error", "failed");
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void stopSpeech() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (recognizer != null) {
+                        try {
+                            recognizer.stopListening();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            });
+        }
+
+        // ---- daily reminder ----
+
+        @JavascriptInterface
+        public void scheduleReminder(int hour, int minute) {
+            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
+            PendingIntent pi = reminderIntent();
+            Calendar c = Calendar.getInstance();
+            c.set(Calendar.HOUR_OF_DAY, hour);
+            c.set(Calendar.MINUTE, minute);
+            c.set(Calendar.SECOND, 0);
+            if (c.getTimeInMillis() <= System.currentTimeMillis()) {
+                c.add(Calendar.DAY_OF_YEAR, 1);
+            }
+            try {
+                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(),
+                        AlarmManager.INTERVAL_DAY, pi);
+            } catch (Exception ignored) {
+            }
+        }
+
+        @JavascriptInterface
+        public void cancelReminder() {
+            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (am != null) {
+                am.cancel(reminderIntent());
+            }
+        }
+    }
+
+    private PendingIntent reminderIntent() {
+        Intent i = new Intent(this, ReminderReceiver.class);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        return PendingIntent.getBroadcast(this, 7, i, flags);
+    }
+
+    private class Listener implements RecognitionListener {
+        @Override public void onReadyForSpeech(Bundle p) {}
+        @Override public void onBeginningOfSpeech() {}
+        @Override public void onRmsChanged(float v) {}
+        @Override public void onBufferReceived(byte[] b) {}
+        @Override public void onEndOfSpeech() {}
+        @Override public void onEvent(int t, Bundle p) {}
+        @Override public void onPartialResults(Bundle b) {
+            ArrayList<String> r = b.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            if (r != null && !r.isEmpty()) speechBack("partial", r.get(0));
+        }
+        @Override public void onResults(Bundle b) {
+            ArrayList<String> r = b.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            speechBack("final", (r != null && !r.isEmpty()) ? r.get(0) : "");
+        }
+        @Override public void onError(int e) {
+            speechBack("error", e == SpeechRecognizer.ERROR_NO_MATCH ? "nomatch" : "failed");
+        }
+    }
+
+    private void speechBack(String type, String text) {
+        final String js = "window.__speech&&window.__speech(" + JSONObject.quote(type) + ","
+                + JSONObject.quote(text == null ? "" : text) + ")";
+        if (web != null) {
+            web.post(new Runnable() {
+                @Override
+                public void run() {
+                    web.evaluateJavascript(js, null);
+                }
+            });
+        }
+    }
+
+    static void ensureChannel(Context c) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager nm =
+                    (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null && nm.getNotificationChannel(CHANNEL) == null) {
+                NotificationChannel ch = new NotificationChannel(CHANNEL, "Reminders",
+                        NotificationManager.IMPORTANCE_DEFAULT);
+                ch.setDescription("Daily reminders to write in Notto");
+                nm.createNotificationChannel(ch);
+            }
         }
     }
 

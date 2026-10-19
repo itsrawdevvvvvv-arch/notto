@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-19
+
+### Added
+- **Voice notes** — dictate with speech to text, or record audio and play it back inside a note.
+- **Home-screen widget** — drop the Notto widget on your home screen; tap it to write.
+- **Daily reminders** — choose a time in Settings and Notto nudges you once a day.
+- **New app icon** built from the new Notto logo.
+- Fonts chosen in Settings now apply across the whole app.
+
+### Changed
+- The app now fills the screen on tall phones and tablets instead of letter-boxing.
+- Screens, the search bar and the Settings panel animate with the same spring feel as the home dock.
+- Light theme gained soft shadows for a little depth.
+
+### Fixed
+- **Text selection works again** — the native text toolbar is no longer force-hidden, so you can select text and use the app's own cut/copy/paste bar.
+- **Custom font import** and **backup restore** now open the file picker properly.
+- A cover image set from the gallery now keeps the image's own shape (a square photo gives a square note).
+- The Settings and Recycle-bin screens now use the same background as the home screen.
+
 ## [1.1.0] - 2026-10-19
 
 ### Added
@@ -45,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.2.0
 [1.1.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.1.0
 [1.0.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.0.0

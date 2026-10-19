@@ -24,7 +24,13 @@ the APK, so it works completely offline.
 
 ## Permissions
 
-Notto requests no runtime permissions. When you add a photo or import a file,
+Notto asks for as little as possible, and only when it is actually needed:
+
+- **Microphone** — requested only when you tap a voice feature (dictate or
+  record). It is never used in the background.
+- **Notifications** — requested only if you turn on the daily reminder.
+
+There are no other runtime permissions. When you add a photo or import a file,
 Android's system file picker asks you to choose a file — Notto only ever
 receives the specific file you pick.
 

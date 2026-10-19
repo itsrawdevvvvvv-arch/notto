@@ -1,0 +1,18 @@
+Notto 1.2.0
+
+New
+• Voice notes — dictate with speech to text, or record audio in a note
+• Home-screen widget
+• Daily reminders (pick a time in Settings)
+• New app icon
+• The font you pick in Settings now applies everywhere
+
+Fixed
+• Text selection works again — you can now select text and use the copy/paste bar
+• Custom font import and backup restore open the file picker properly
+• A cover photo from your gallery keeps its own shape (square stays square)
+
+Improved
+• Fills the screen on tall phones
+• Smoother spring animations across screens and search
+• Soft shadows in light theme
