@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-19
+
+### Added
+- **Clock, timer and alarm.** A new *Clock* option in the + menu: a landscape clock in a retro dot-matrix panel with small seconds, a **Seconds** on/off toggle and a soft **chime on every minute**. The Timer counts down from a preset (or your own), and the Alarm rings at a time you choose.
+- **Alarms ring properly.** Timers and alarms post a notification and, when they go off, show a **full-screen takeover** in the app's own style with **Snooze** and **Stop** — over the lock screen too.
+- **Transcribe a recording.** Long-press any voice recording inside a note to **Transcribe to text** or **Delete recording**.
+
+### Fixed
+- **Moodboard resize and rotate handles now work.** The board's "selected" class clashed with the text-toolbar's `.sel` rule, which sets `pointer-events: none` — so the handles could never be touched. Dragging them now resizes and rotates as intended.
+
 ## [1.4.0] - 2026-10-19
 
 ### Added
@@ -101,7 +111,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.5.0
 [1.4.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.4.0
 [1.3.1]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.3.1
 [1.3.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.3.0

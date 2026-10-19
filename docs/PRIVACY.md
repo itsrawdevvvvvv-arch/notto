@@ -28,7 +28,10 @@ Notto asks for as little as possible, and only when it is actually needed:
 
 - **Microphone** — requested only when you tap a voice feature (dictate or
   record). It is never used in the background.
-- **Notifications** — requested only if you turn on the daily reminder.
+- **Notifications** — requested only if you turn on the daily reminder or set an alarm.
+- **Alarms & reminders** — the app schedules timers/alarms with Android's alarm service
+  so they ring even when the app is closed. Full-screen alarm notifications are used so
+  an alarm can take over the screen, which is the standard behaviour for a clock app.
 
 There are no other runtime permissions. When you add a photo or import a file,
 Android's system file picker asks you to choose a file — Notto only ever

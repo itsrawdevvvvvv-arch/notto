@@ -49,6 +49,8 @@ Notto is a tiny, no-nonsense note-taking app for Android. Write notes, build che
 - **Voice notes** — dictate with speech to text, or record audio right inside a note.
 - **Widgets** — Notto, Checklist and Moodboard widgets for your home screen.
 - **Reminders** — an optional daily nudge to write, at a time you choose.
+- **Clock, timer & alarm** — a retro dot-matrix clock (landscape, with a per-minute chime), a countdown timer and an alarm that rings with a full-screen takeover.
+- **Transcribe recordings** — long-press a voice note to turn it into text.
 - **Offline by design** — no account, no tracking, no network permission. Your notes live in local storage on your device.
 - **Small & fast** — one lightweight APK (about 0.6 MB), no third-party runtime.
 

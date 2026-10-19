@@ -4,6 +4,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.content.pm.ActivityInfo;
+import android.media.MediaCodec;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
+import android.os.ParcelFileDescriptor;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -44,6 +49,8 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -76,6 +83,9 @@ public class MainActivity extends Activity {
     private File recFile;
     private boolean pendingSpeech = false;
     private boolean pendingRec = false;
+    private int sttRate = 16000;
+    private int sttChannels = 1;
+    static WeakReference<MainActivity> live = new WeakReference<>(null);
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -312,6 +322,38 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        live = new WeakReference<>(this);
+        String a = getIntent() == null ? null : getIntent().getStringExtra("notto_alarm");
+        if (a != null) {
+            ring(a);
+            getIntent().removeExtra("notto_alarm");
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        String a = intent == null ? null : intent.getStringExtra("notto_alarm");
+        if (a != null) {
+            ring(a);
+        }
+    }
+
+    static void ringIfAlive(String label) {
+        MainActivity a = live.get();
+        if (a != null) {
+            a.ring(label);
+        }
+    }
+
+    private void ring(final String label) {
+        js("window.__alarm&&window.__alarm(" + JSONObject.quote(label == null ? "Alarm" : label) + ")");
+    }
+
+    @Override
     public void onBackPressed() {
         if (web != null && web.canGoBack()) {
             web.goBack();
@@ -322,6 +364,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        live = new WeakReference<>(null);
         if (recognizer != null) {
             recognizer.destroy();
             recognizer = null;
@@ -620,6 +663,54 @@ public class MainActivity extends Activity {
             });
         }
 
+        // ---- clock / timer / alarm ----
+
+        @JavascriptInterface
+        public void setOrientation(final String o) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        setRequestedOrientation("landscape".equals(o)
+                                ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                                : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    } catch (Exception ignored) {
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void setTimer(int seconds, String label) {
+            scheduleClock(System.currentTimeMillis() + seconds * 1000L, label);
+        }
+
+        @JavascriptInterface
+        public void setAlarm(int hour, int minute, String label) {
+            Calendar c = Calendar.getInstance();
+            c.set(Calendar.HOUR_OF_DAY, hour);
+            c.set(Calendar.MINUTE, minute);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            if (c.getTimeInMillis() <= System.currentTimeMillis()) {
+                c.add(Calendar.DAY_OF_YEAR, 1);
+            }
+            scheduleClock(c.getTimeInMillis(), label);
+        }
+
+        @JavascriptInterface
+        public void cancelAlarm() {
+            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (am != null) {
+                am.cancel(clockIntent(null));
+            }
+        }
+
+        @JavascriptInterface
+        public void transcribeFile(String dataUrl) {
+            transcribe(dataUrl);
+        }
+
         // ---- home-screen widgets ----
 
         @JavascriptInterface
@@ -688,6 +779,184 @@ public class MainActivity extends Activity {
                 }
             });
         }
+    }
+
+    private PendingIntent clockIntent(String label) {
+        Intent i = new Intent(this, ClockReceiver.class);
+        if (label != null) {
+            i.putExtra("label", label);
+        }
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        return PendingIntent.getBroadcast(this, 21, i, flags);
+    }
+
+    private void scheduleClock(long at, String label) {
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (am == null) {
+            return;
+        }
+        PendingIntent pi = clockIntent(label);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
+            } else {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
+            }
+        } catch (Exception e) {
+            try {
+                am.set(AlarmManager.RTC_WAKEUP, at, pi);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    /** Transcribes a saved recording by decoding it to PCM and feeding the recogniser. */
+    private void transcribe(final String dataUrl) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    sttBack("error", "unavailable");
+                    return;
+                }
+                File pcm = null;
+                try {
+                    int comma = dataUrl.indexOf(',');
+                    String meta = dataUrl.substring(5, comma);
+                    String mime = meta.split(";")[0];
+                    byte[] bytes = Base64.decode(dataUrl.substring(comma + 1), Base64.DEFAULT);
+                    String ext = mime.contains("wav") ? ".wav" : ".m4a";
+                    File raw = new File(getCacheDir(), "notto-stt-" + System.currentTimeMillis() + ext);
+                    FileOutputStream fo = new FileOutputStream(raw);
+                    fo.write(bytes);
+                    fo.flush();
+                    fo.close();
+                    pcm = decodePcm(raw);
+                    raw.delete();
+                    if (pcm == null) {
+                        sttBack("error", "unavailable");
+                        return;
+                    }
+                    if (recognizer != null) {
+                        try { recognizer.cancel(); } catch (Exception ignored) {}
+                        try { recognizer.destroy(); } catch (Exception ignored) {}
+                        recognizer = null;
+                    }
+                    recognizer = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);
+                    recognizer.setRecognitionListener(new Listener());
+                    ParcelFileDescriptor pfd = ParcelFileDescriptor.open(pcm,
+                            ParcelFileDescriptor.MODE_READ_ONLY);
+                    Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                    i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                    i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+                    i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE, pfd);
+                    i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_CHANNEL_COUNT, sttChannels);
+                    i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_ENCODING,
+                            android.media.AudioFormat.ENCODING_PCM_16BIT);
+                    i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_SAMPLING_RATE, sttRate);
+                    recognizer.startListening(i);
+                } catch (Exception e) {
+                    sttBack("error", "failed");
+                }
+            }
+        });
+    }
+
+    /** Decodes an audio file to raw 16-bit PCM using MediaCodec. */
+    private File decodePcm(File in) {
+        MediaExtractor ex = new MediaExtractor();
+        MediaCodec codec = null;
+        FileOutputStream fos = null;
+        File out = null;
+        try {
+            ex.setDataSource(in.getAbsolutePath());
+            int track = -1;
+            MediaFormat fmt = null;
+            for (int i = 0; i < ex.getTrackCount(); i++) {
+                MediaFormat f = ex.getTrackFormat(i);
+                String mime = f.getString(MediaFormat.KEY_MIME);
+                if (mime != null && mime.startsWith("audio/")) {
+                    track = i;
+                    fmt = f;
+                    break;
+                }
+            }
+            if (track < 0 || fmt == null) {
+                return null;
+            }
+            ex.selectTrack(track);
+            String mime = fmt.getString(MediaFormat.KEY_MIME);
+            codec = MediaCodec.createDecoderByType(mime);
+            codec.configure(fmt, null, null, 0);
+            codec.start();
+            sttRate = fmt.containsKey(MediaFormat.KEY_SAMPLE_RATE)
+                    ? fmt.getInteger(MediaFormat.KEY_SAMPLE_RATE) : 44100;
+            sttChannels = fmt.containsKey(MediaFormat.KEY_CHANNEL_COUNT)
+                    ? fmt.getInteger(MediaFormat.KEY_CHANNEL_COUNT) : 1;
+
+            out = new File(getCacheDir(), "notto-pcm-" + System.currentTimeMillis() + ".pcm");
+            fos = new FileOutputStream(out);
+            MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
+            boolean inDone = false, outDone = false;
+            int guard = 0;
+            while (!outDone && guard++ < 200000) {
+                if (!inDone) {
+                    int inIx = codec.dequeueInputBuffer(10000);
+                    if (inIx >= 0) {
+                        ByteBuffer buf = codec.getInputBuffer(inIx);
+                        int sz = buf == null ? -1 : ex.readSampleData(buf, 0);
+                        if (sz < 0) {
+                            codec.queueInputBuffer(inIx, 0, 0, 0,
+                                    MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                            inDone = true;
+                        } else {
+                            codec.queueInputBuffer(inIx, 0, sz, ex.getSampleTime(), 0);
+                            ex.advance();
+                        }
+                    }
+                }
+                int outIx = codec.dequeueOutputBuffer(info, 10000);
+                if (outIx >= 0) {
+                    if (info.size > 0) {
+                        ByteBuffer ob = codec.getOutputBuffer(outIx);
+                        if (ob != null) {
+                            byte[] d = new byte[info.size];
+                            ob.position(info.offset);
+                            ob.get(d);
+                            fos.write(d);
+                        }
+                    }
+                    codec.releaseOutputBuffer(outIx, false);
+                    if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+                        outDone = true;
+                    }
+                } else if (outIx == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                    MediaFormat of = codec.getOutputFormat();
+                    if (of.containsKey(MediaFormat.KEY_SAMPLE_RATE)) {
+                        sttRate = of.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+                    }
+                    if (of.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) {
+                        sttChannels = of.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+                    }
+                }
+            }
+            return out;
+        } catch (Exception e) {
+            return null;
+        } finally {
+            try { if (fos != null) fos.close(); } catch (Exception ignored) {}
+            try { if (codec != null) { codec.stop(); codec.release(); } } catch (Exception ignored) {}
+            try { ex.release(); } catch (Exception ignored) {}
+        }
+    }
+
+    private void sttBack(String type, String text) {
+        js("window.__stt&&window.__stt(" + JSONObject.quote(type) + ","
+                + JSONObject.quote(text == null ? "" : text) + ")");
     }
 
     static void refreshWidgets(Context c) {

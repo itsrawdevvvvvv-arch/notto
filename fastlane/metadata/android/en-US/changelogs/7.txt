@@ -1,0 +1,10 @@
+Notto 1.5.0
+
+New
+• Clock, Timer and Alarm — a retro dot-matrix clock in landscape, with small
+  seconds, a seconds on/off toggle and a soft chime every minute
+• Alarms ring with a full-screen takeover (Snooze / Stop), even over the lock screen
+• Long-press a voice recording in a note to Transcribe it or Delete it
+
+Fixed
+• Moodboard resize and rotate handles now work
