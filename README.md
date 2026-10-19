@@ -28,8 +28,8 @@ Notto is a tiny, no-nonsense note-taking app for Android. Write notes, build che
   <img src="screenshots/01-home.png" width="200" alt="Home">
   <img src="screenshots/02-note-editor.png" width="200" alt="Note editor">
   <img src="screenshots/03-todo.png" width="200" alt="Checklist">
-  <img src="screenshots/04-create.png" width="200" alt="Create menu">
   <img src="screenshots/05-ai-import.png" width="200" alt="AI import">
+  <img src="screenshots/06-settings.png" width="200" alt="Settings">
 </div>
 
 ## Features
@@ -41,9 +41,13 @@ Notto is a tiny, no-nonsense note-taking app for Android. Write notes, build che
 - **Voice notes** — dictate hands-free and turn speech into a note.
 - **AI import** — copy a ready-made prompt into any AI tool, paste the answer back and Notto formats it for you.
 - **Export & share** — save any note as **PNG**, **PDF** or **TXT**.
-- **Organise** — pin important notes, filter by type, and sort by recent.
+- **Search & organise** — instant search, sort by newest/oldest/title, filter by type, and pin important notes.
+- **Recycle bin** — restore a note you deleted by mistake.
+- **Backup & restore** — export every note to one file, and import it back.
+- **Make it yours** — light or dark theme, dotted / grid / diagonal backgrounds, and any background colour.
+- **14 fonts, or your own** — choose from 14 built-in typefaces or import any .ttf/.otf/.woff font.
 - **Offline by design** — no account, no tracking, no network permission. Your notes live in local storage on your device.
-- **Small & fast** — one lightweight APK (under 1 MB), no third-party runtime.
+- **Small & fast** — one lightweight APK (about 0.4 MB), no third-party runtime.
 
 ## Download
 
@@ -59,7 +63,7 @@ Grab the latest signed APK from the [**Releases**](https://github.com/itsrawdevv
 ### Verify your download
 
 ```bash
-sha256sum -c notto-1.0.0.apk.sha256
+sha256sum -c notto-1.1.0.apk.sha256
 ```
 
 ## Install

@@ -3,6 +3,7 @@ package com.notto.app;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.view.ActionMode;
 import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -49,7 +51,7 @@ public class MainActivity extends Activity {
         w.setStatusBarColor(Color.parseColor(BG));
         w.setNavigationBarColor(Color.parseColor(BG));
 
-        web = new WebView(this);
+        web = new NottoWebView(this);
         web.setBackgroundColor(Color.parseColor(BG));
 
         WebSettings s = web.getSettings();
@@ -148,6 +150,25 @@ public class MainActivity extends Activity {
             web.goBack();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    /**
+     * WebView that suppresses Android's own text-selection toolbar.
+     * Notto ships its own cut/copy/paste/select-all bar, so the native one is
+     * redundant (and it overlaps the app UI).
+     */
+    private static class NottoWebView extends WebView {
+        NottoWebView(Context context) {
+            super(context);
+        }
+        @Override
+        public ActionMode startActionMode(ActionMode.Callback callback) {
+            return null;
+        }
+        @Override
+        public ActionMode startActionMode(ActionMode.Callback callback, int type) {
+            return null;
         }
     }
 

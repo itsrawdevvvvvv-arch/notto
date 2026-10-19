@@ -1,0 +1,16 @@
+Notto 1.1.0
+
+New
+• Search your notes
+• Sort & filter menu
+• Recycle bin — restore deleted notes
+• Backup & restore all notes
+• Settings screen with light/dark theme and background styles
+• 14 fonts, plus import your own
+• Set a note cover straight from your gallery
+• Keyboard hide button
+• Your phone's clipboard now shows up in the editor's Clipboard tab
+
+Fixed
+• The cover editor is much cleaner — only the controls you need
+• Moodboard items now select and move properly
