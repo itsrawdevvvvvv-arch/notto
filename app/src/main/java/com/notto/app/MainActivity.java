@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setSupportZoom(false);
         s.setUseWideViewPort(true);
-        s.setLoadWithOverviewMode(true);
+        s.setLoadWithOverviewMode(false);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             s.setSafeBrowsingEnabled(false);
@@ -537,6 +537,37 @@ public class MainActivity extends Activity {
                         recBack("error", "failed");
                     } finally {
                         cleanupRec();
+                    }
+                }
+            });
+        }
+
+        // ---- keep the system bars matching the app background ----
+
+        @JavascriptInterface
+        public void setBars(final String color, final boolean light) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int c = Color.parseColor(color);
+                        getWindow().setStatusBarColor(c);
+                        getWindow().setNavigationBarColor(c);
+                        if (web != null) {
+                            web.setBackgroundColor(c);
+                        }
+                        View dv = getWindow().getDecorView();
+                        int flags = dv.getSystemUiVisibility();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            flags = light ? (flags | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                                    : (flags & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            flags = light ? (flags | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
+                                    : (flags & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                        }
+                        dv.setSystemUiVisibility(flags);
+                    } catch (Exception ignored) {
                     }
                 }
             });

@@ -27,7 +27,7 @@
 </script>
 
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0b">
 <title>Notto</title>
 <style>
@@ -460,6 +460,9 @@ html.light #set input[type=time]{background:#fff;color:#141414;border-color:#e2d
 .tgl input:checked+i::after{transform:translateX(20px)}
 html.light .tgl i{background:#d9d4c9}
 html.light .tgl input:checked+i{background:#f6cf3d}
+/* fill the whole screen on every device/density */
+#app{max-width:none;width:100%;height:100%;margin-top:0;border-radius:0}
+html,body{width:100%;height:100%}
 html.light #set .chp.on{background:#141414;color:#fff}
 .sheet{max-height:74vh;overflow-y:auto;scrollbar-width:none}
 .sheet::-webkit-scrollbar{display:none}
@@ -563,7 +566,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <button class="ib2" id="remtest">Send a test notification</button>
   <p class="hint">Notto will nudge you once a day to write something down.</p>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.3.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.3.1</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -1103,14 +1106,15 @@ $('#zfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f
 $('#aprev').onclick=e=>{if(!e.target.closest('#acr')||!AP)return;const n={id:Date.now(),type:AP.type,c:AP.type==='todo'?'or':COL[S.n.length%3],title:AP.title,html:AP.html||'',items:AP.items,fav:0,t:Date.now()};
  if(AP.cover){n.cover=AP.cover;n.type='img';n.c='ye'}S.n.unshift(n);save();render();$('#ai').classList.remove('on');openN(n.id);toast('Note created')};
 /* ---- v1.1 settings, theme, background, fonts, backup, recycle ---- */
+function syncBars(){try{const light=document.documentElement.classList.contains('light');const c=ST.bgc||(light?'#f2f0eb':'#0b0b0b');if(window.NottoBridge&&NottoBridge.setBars)NottoBridge.setBars(c,light)}catch(e){}}
 function applyFont(){const f=ST.font;document.documentElement.style.setProperty('--appfont',f?("'"+f+"', system-ui, sans-serif"):'Montserrat, "Avenir Next", "Segoe UI", system-ui, sans-serif')}
-function applyTheme(){let t=ST.theme||'system';if(t==='system')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';document.documentElement.classList.toggle('light',t==='light');const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t==='light'?'#f2f0eb':'#0b0b0b')}
+function applyTheme(){let t=ST.theme||'system';if(t==='system')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';document.documentElement.classList.toggle('light',t==='light');const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t==='light'?'#f2f0eb':'#0b0b0b');syncBars()}
 function applyBg(){const els=['.list','#set','#trashv'].map(x=>$(x)).filter(Boolean);if(!els.length)return;const light=document.documentElement.classList.contains('light');const c=ST.bgc||(light?'#f2f0eb':'#0b0b0b');const p=ST.pat||'dots';const dk=lum(c)<.45;const dot=dk?'rgba(255,255,255,.11)':'rgba(0,0,0,.11)';const line=dk?'rgba(255,255,255,.075)':'rgba(0,0,0,.075)';let img='none',size='auto';
  if(p==='dots'){img=`radial-gradient(circle,${dot} 1.1px,transparent 1.3px)`;size='9px 9px'}
  else if(p==='grid'){img=`linear-gradient(${line} 1px,transparent 1px),linear-gradient(90deg,${line} 1px,transparent 1px)`;size='22px 22px'}
  else if(p==='diagonal'){img=`repeating-linear-gradient(45deg,${line} 0 1px,transparent 1px 13px)`}
  else if(p==='circles'){img=`radial-gradient(circle,transparent 6px,${dot} 6.6px,transparent 7.6px)`;size='26px 26px'}
- els.forEach(el=>{el.style.background=c;el.style.backgroundImage=img;el.style.backgroundSize=size;el.style.backgroundColor=c})}
+ els.forEach(el=>{el.style.background=c;el.style.backgroundImage=img;el.style.backgroundSize=size;el.style.backgroundColor=c});syncBars()}
 function syncSet(){$$('#themeseg button').forEach(b=>b.classList.toggle('on',b.dataset.th===(ST.theme||'system')));$('#bgcol').value=(ST.bgc||'#0b0b0b');$$('#bgpats .chp').forEach(b=>b.classList.toggle('on',b.dataset.p===(ST.pat||'dots')));$('#allfonts').innerHTML=FN.map(f=>`<button class="chp ${(ST.font||'Montserrat')===f[0]?'on':''}" data-fn="${f[0]}" style="font-family:'${f[0]}',system-ui,sans-serif;font-weight:${f[1]}">${f[0]}</button>`).join('');$('#remon').checked=!!ST.rem;$('#remtime').value=ST.remtime||'20:00';$('#bgauto').classList.toggle('on',!ST.bgc);$('#bgcol').value=ST.bgc||(document.documentElement.classList.contains('light')?'#f2f0eb':'#0b0b0b');$('#bgcol').style.opacity=ST.bgc?1:.4}
 $('#allfonts').onclick=e=>{const b=e.target.closest('[data-fn]');if(!b)return;ST.font=b.dataset.fn;setSave();applyFont();syncSet()};
 $('#remon').onchange=()=>{const on=$('#remon').checked;

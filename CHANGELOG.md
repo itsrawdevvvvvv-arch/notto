@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-19
+
+### Changed
+- The app now **fills the entire screen on every device and density** — no letter-boxing or side gaps — and the status/navigation bars follow the theme, so the background is continuous edge to edge.
+
+### Fixed
+- Removed the WebView's overview zoom, which could scale the interface slightly on some devices.
+
 ## [1.3.0] - 2026-10-19
 
 ### Added
@@ -83,7 +91,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.3.1
 [1.3.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.3.0
 [1.2.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.2.0
 [1.1.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.1.0

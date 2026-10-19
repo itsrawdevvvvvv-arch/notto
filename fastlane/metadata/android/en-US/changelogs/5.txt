@@ -1,0 +1,5 @@
+Notto 1.3.1
+
+• The app now fills the whole screen on every device — no bars or gaps
+• Status and navigation bars follow the app theme
+• Removed WebView zoom that could scale the UI on some phones
