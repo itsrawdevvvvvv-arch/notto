@@ -1,0 +1,9 @@
+Notto 1.4.0
+
+New
+• A proper recorder screen — live timer, Stop, then Play / Record again / Save
+• Masonry home screen: notes now fill the gaps, no empty holes
+
+Fixed
+• Recording no longer clips the beginning
+• Speech to text is more reliable (asks permission first, then starts)

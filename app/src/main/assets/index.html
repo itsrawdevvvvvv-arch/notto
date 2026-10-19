@@ -463,6 +463,26 @@ html.light .tgl input:checked+i{background:#f6cf3d}
 /* fill the whole screen on every device/density */
 #app{max-width:none;width:100%;height:100%;margin-top:0;border-radius:0}
 html,body{width:100%;height:100%}
+/* ---- recorder screen ---- */
+.recwrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding-bottom:20px}
+.rbtn{width:148px;height:148px;border-radius:50%;background:#1d1d1d;color:#fff;display:grid;place-items:center;box-shadow:0 0 0 1px #2c2c2c;transition:transform .3s var(--spring),background .3s var(--ease)}
+.rbtn svg{width:54px;height:54px}
+.rbtn.rec{background:#e5484d;animation:rpulse 1.7s var(--ease) infinite}
+@keyframes rpulse{0%{box-shadow:0 0 0 0 rgba(229,72,77,.45)}70%{box-shadow:0 0 0 36px rgba(229,72,77,0)}100%{box-shadow:0 0 0 0 rgba(229,72,77,0)}}
+.rtime{font-size:42px;font-weight:700;letter-spacing:-1.5px;font-variant-numeric:tabular-nums}
+.rbar{width:74%;height:6px;border-radius:3px;background:#242424;overflow:hidden}
+.rbar span{display:block;height:100%;width:0;background:#f6cf3d;transition:width .2s linear}
+.rhint{color:#8a8a8a;font-size:13px;text-align:center;max-width:82%;min-height:18px}
+#recbtns{display:flex;gap:8px;width:100%;max-width:340px}
+#recbtns .ib2{flex:1;height:52px;border-radius:18px}
+#recbtns .ib2{font-size:13px;white-space:nowrap;padding:0 10px}
+.ib2.dgr{background:#3a1f22;color:#ff8b8b}
+html.light .ib2.dgr{background:#ffe0e0;color:#c0392b}
+html.light .rbtn{background:#e9e5dd;color:#141414;box-shadow:0 0 0 1px #d9d4c9}
+html.light .rbar{background:#e2ddd3}
+/* ---- masonry home grid (fills the gaps) ---- */
+#grid.masonry{display:block;position:relative}
+#grid.masonry>.card{position:absolute;top:0;left:0;transition:top .38s var(--ease),left .38s var(--ease),opacity .2s var(--ease),transform .25s var(--ease)}
 html.light #set .chp.on{background:#141414;color:#fff}
 .sheet{max-height:74vh;overflow-y:auto;scrollbar-width:none}
 .sheet::-webkit-scrollbar{display:none}
@@ -548,6 +568,16 @@ html.light #set .chp.on{background:#141414;color:#fff}
  <textarea id="ain" placeholder="Paste the AI's answer here"></textarea>
  <div class="rw"><button class="ib2" id="apaste">Paste answer</button><button class="ib2" id="azip">Import zip</button></div>
  <div id="aprev"></div></section>
+<section class="v sc2 rec" id="rec">
+ <div class="cbar"><button class="eb dk" id="recx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Voice recording</b><span style="width:46px"></span></div>
+ <div class="recwrap">
+  <div class="rbtn" id="recbig"><svg class="i"><use href="#i-mic"/></svg></div>
+  <div class="rtime" id="rectime">00:00</div>
+  <div class="rbar"><span id="recprog"></span></div>
+  <div class="rhint" id="rechint">Tap the mic to start recording</div>
+  <div id="recbtns"></div>
+ </div>
+</section>
 <section class="v sc2" id="set">
  <div class="cbar"><button class="eb dk" id="setx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Settings</b><span style="width:46px"></span></div>
  <div class="grp"><h3>Appearance</h3>
@@ -566,7 +596,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <button class="ib2" id="remtest">Send a test notification</button>
   <p class="hint">Notto will nudge you once a day to write something down.</p>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.3.1</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.4.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -619,6 +649,24 @@ async function pushWidget(){
   if(j===_wp)return;_wp=j;NottoBridge.updateWidget(j);
  }catch(e){}
 }
+let mzT;
+function layoutMasonry(){
+ const g=$('#grid');if(!g)return;
+ const cards=[...g.querySelectorAll(':scope > .card')];
+ if(!cards.length){g.classList.remove('masonry');g.style.height='';return}
+ g.classList.add('masonry');
+ const gap=12,W=g.clientWidth||1,colW=(W-gap)/2;
+ const widths=cards.map(c=>c.classList.contains('cr')?W:colW);
+ cards.forEach((c,i)=>{c.style.width=widths[i]+'px'});
+ const heights=cards.map(c=>c.offsetHeight);
+ const colH=[0,0];
+ cards.forEach((c,i)=>{
+  if(widths[i]===W){const base=Math.max(colH[0],colH[1]);c.style.left='0px';c.style.top=base+'px';colH[0]=colH[1]=base+heights[i]+gap}
+  else{const col=colH[0]<=colH[1]?0:1;c.style.left=(col*(colW+gap))+'px';c.style.top=colH[col]+'px';colH[col]+=heights[i]+gap}
+ });
+ g.style.height=Math.max(0,Math.max(colH[0],colH[1])-gap)+'px';
+}
+addEventListener('resize',()=>{clearTimeout(mzT);mzT=setTimeout(layoutMasonry,140)});
 let sT;function softRender(){const g=$('#grid');if(!g)return render();g.classList.add('q');clearTimeout(sT);sT=setTimeout(()=>{render(false);requestAnimationFrame(()=>requestAnimationFrame(()=>g.classList.remove('q')))},120)};
 let ST={theme:'dark',bgc:'',pat:'dots',font:''};try{const _s=JSON.parse(localStorage.getItem('notto.set'));if(_s)Object.assign(ST,_s)}catch(e){}
 if(ST.bgv!==2){ST.bgc='';ST.bgv=2;try{localStorage.setItem('notto.set',JSON.stringify(ST))}catch(e){}}
@@ -652,6 +700,7 @@ function render(anim=true){
  const g=$('#grid');g.innerHTML=L.map(card).join('')||`<p class="empty">${q?'No notes match \u201c'+esc(S.q.trim())+'\u201d':'Nothing here yet. Tap + to start a note.'}</p>`;
  if(!anim)$$('.card',g).forEach(c=>c.classList.remove('in'));
  $('#chips').innerHTML=[['all','All'],['imp','Important'],['todo','To-do']].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-k="${k}">${l}${k==='all'?`<i>${S.n.length}</i>`:''}</button>`).join('');
+ requestAnimationFrame(layoutMasonry);
 }
 $('#chips').onclick=e=>{const b=e.target.closest('.chip');if(b){S.f=b.dataset.k;softRender()}};
 $('#searchb').onclick=()=>{const b=$('#sbar'),on=!b.classList.contains('on');b.classList.toggle('on',on);if(on)setTimeout(()=>$('#search').focus(),120);else{S.q='';$('#search').value='';render(false)}};
@@ -710,31 +759,35 @@ function newN(type,sk,html,cover){
 function voiceMenu(){$('#sheet').innerHTML='<b>Voice</b><button data-v="dictate">'+ic('mic')+'Dictate \u2014 speech to text</button><button data-v="record">'+ic('mic')+'Record audio</button>';app.classList.add('mn')}
 let recorder=null,recBuf=[],recSrc=null;
 window.__rec=(type,data)=>{
- if(type==='start'){toast('Recording\u2026 tap Record again to stop');return}
- if(type==='error'){toast(data==='permission'?'Microphone permission needed':'Could not record audio');return}
- if(type==='done'&&data){const nn=newN('note',false,'<p><audio controls preload="metadata" src="'+data+'"></audio></p>');nn.title='Voice recording';save();render();toast('Recording saved')}
+ if(type==='start'){recState('rec');return}
+ if(type==='error'){toast(data==='permission'?'Microphone permission needed':'Could not record audio');recState('idle');return}
+ if(type==='done'&&data){RST.data=data;recState('ready');return}
 };
-let nrec=false;
-async function record(){
- if(window.NottoBridge&&NottoBridge.startRecording){
-  nrec=!nrec;
-  if(nrec){if(NottoBridge.requestMic)NottoBridge.requestMic();NottoBridge.startRecording()}
-  else NottoBridge.stopRecording();
-  return;
- }
- if(recorder){try{recorder.stop()}catch(e){}return}
- try{
-  if(window.NottoBridge&&NottoBridge.requestMic)NottoBridge.requestMic();
-  recSrc=await navigator.mediaDevices.getUserMedia({audio:true});
-  recBuf=[];recorder=new MediaRecorder(recSrc);
-  recorder.ondataavailable=e=>{if(e.data&&e.data.size)recBuf.push(e.data)};
-  recorder.onstop=async()=>{try{recSrc.getTracks().forEach(t=>t.stop())}catch(e){}
-   const mt=(recorder&&recorder.mimeType)||'audio/webm';const blob=new Blob(recBuf,{type:mt});recorder=null;recSrc=null;
-   const d=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(blob)});
-   const nn=newN('note',false,'<p><audio controls preload="metadata" src="'+d+'"></audio></p>');nn.title='Voice recording';save();render();toast('Recording saved')};
-  recorder.start();toast('Recording\u2026 open Voice again to stop');
- }catch(e){recorder=null;toast('Microphone unavailable')}
+let RST={data:'',t0:0,timer:null,audio:null};
+function openRec(){RST.data='';if(RST.audio){try{RST.audio.pause()}catch(e){}RST.audio=null}recState('idle');$('#rec').classList.add('on')}
+function closeRec(){stopTimer();if(RST.audio){try{RST.audio.pause()}catch(e){}}if(RST.state==='rec'&&window.NottoBridge&&NottoBridge.stopRecording){try{NottoBridge.stopRecording()}catch(e){}}RST.audio=null;$('#rec').classList.remove('on')}
+function stopTimer(){clearInterval(RST.timer);RST.timer=null}
+function startTimer(){stopTimer();RST.t0=Date.now();$('#rectime').textContent='00:00';RST.timer=setInterval(()=>{const t=Math.floor((Date.now()-RST.t0)/1000);$('#rectime').textContent=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')},250)}
+function fmtT(v){v=Math.max(0,Math.floor(v||0));return String(Math.floor(v/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0')}
+function makeAudio(){if(RST.audio)return RST.audio;RST.audio=new Audio(RST.data);RST.audio.ontimeupdate=()=>{const p=$('#recprog');if(p&&RST.audio&&RST.audio.duration)p.style.width=(100*RST.audio.currentTime/RST.audio.duration)+'%'};RST.audio.onended=()=>{const b=$('#recplay');if(b)b.textContent='Play';const p=$('#recprog');if(p)p.style.width='0%'};return RST.audio}
+function recState(state){
+ RST.state=state;const big=$('#recbig'),btns=$('#recbtns'),hint=$('#rechint'),prog=$('#recprog');
+ if(!big||!btns)return;
+ big.classList.toggle('rec',state==='rec');
+ if(state==='idle'){stopTimer();$('#rectime').textContent='00:00';if(prog)prog.style.width='0%';hint.textContent='Tap the mic to start recording';btns.innerHTML='<button class="ib2" id="recstart">'+ic('mic')+'Start recording</button>'}
+ else if(state==='rec'){hint.textContent='Recording\u2026 tap Stop when you are done';btns.innerHTML='<button class="ib2 dgr" id="recstop">Stop</button>';startTimer()}
+ else if(state==='ready'){stopTimer();hint.textContent='Listen back, then save it to a note';if(prog)prog.style.width='0%';btns.innerHTML='<button class="ib2" id="recplay">Play</button><button class="ib2" id="recagain">Record again</button><button class="ib2 dgr" id="recsave">Save</button>';setTimeout(()=>{try{const a=makeAudio();if(a&&a.duration)$('#rectime').textContent=fmtT(a.duration)}catch(e){}},180)}
 }
+$('#recx').onclick=closeRec;
+$('#recbtns').onclick=e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.id==='recstart'){if(window.NottoBridge&&NottoBridge.startRecording){if(NottoBridge.requestMic)NottoBridge.requestMic();$('#rechint').textContent='Starting\u2026';NottoBridge.startRecording()}else toast('Recording needs the app')}
+ else if(b.id==='recstop'){if(window.NottoBridge&&NottoBridge.stopRecording){$('#rechint').textContent='Finishing\u2026';NottoBridge.stopRecording()}else toast('Recording needs the app')}
+ else if(b.id==='recplay'){const a=makeAudio();if(a.paused){a.play();b.textContent='Pause'}else{a.pause();b.textContent='Play'}}
+ else if(b.id==='recagain'){RST.data='';if(RST.audio){try{RST.audio.pause()}catch(e){}RST.audio=null}recState('idle')}
+ else if(b.id==='recsave'){if(!RST.data)return;const d=RST.data;closeRec();const nn=newN('note',false,'<p><audio controls preload="metadata" src="'+d+'"></audio></p>');nn.title='Voice recording';save();render();toast('Recording saved')}
+};
+function record(){openRec()}
 window.__speech=(type,text)=>{
  if(type==='start'){toast('Listening\u2026');return}
  if(type==='partial'){if(text)toast(text.slice(0,48));return}

@@ -74,6 +74,8 @@ public class MainActivity extends Activity {
     private SpeechRecognizer recognizer;
     private MediaRecorder recorder;
     private File recFile;
+    private boolean pendingSpeech = false;
+    private boolean pendingRec = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -294,6 +296,22 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_MIC && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (pendingSpeech) {
+                pendingSpeech = false;
+                new Bridge().startSpeech();
+            }
+            if (pendingRec) {
+                pendingRec = false;
+                new Bridge().startRecording();
+            }
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         if (web != null && web.canGoBack()) {
             web.goBack();
@@ -423,18 +441,20 @@ public class MainActivity extends Activity {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                             && checkSelfPermission(Manifest.permission.RECORD_AUDIO)
                             != PackageManager.PERMISSION_GRANTED) {
+                        pendingSpeech = true;
                         requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC);
-                        speechBack("error", "permission");
                         return;
                     }
-                    if (recognizer == null) {
-                        recognizer = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);
-                        recognizer.setRecognitionListener(new Listener());
+                    if (recognizer != null) {
+                        try { recognizer.cancel(); } catch (Exception ignored) {}
+                        try { recognizer.destroy(); } catch (Exception ignored) {}
+                        recognizer = null;
                     }
+                    recognizer = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);
+                    recognizer.setRecognitionListener(new Listener());
                     Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
                     i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                    i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toString());
                     i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
                     i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
                     try {
@@ -472,8 +492,8 @@ public class MainActivity extends Activity {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                             && checkSelfPermission(Manifest.permission.RECORD_AUDIO)
                             != PackageManager.PERMISSION_GRANTED) {
+                        pendingRec = true;
                         requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC);
-                        recBack("error", "permission");
                         return;
                     }
                     try {

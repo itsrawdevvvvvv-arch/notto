@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-19
+
+### Added
+- **A proper recorder screen.** Recording now opens a full-screen recorder with a live timer, a pulsing record button, **Stop**, and then **Play / Record again / Save** — instead of recording blindly.
+- **Masonry home screen.** Notes now pack together and fill the gaps, so the grid has no empty holes however tall or wide each card is.
+
+### Fixed
+- **Recording no longer clips the start.** The timer only begins once the microphone is actually recording, and Stop waits for the file to be finalised.
+- **Speech to text is more reliable** — the microphone permission is now requested first and dictation starts automatically once it is granted, and the recogniser is recreated if it gets into a bad state.
+
 ## [1.3.1] - 2026-10-19
 
 ### Changed
@@ -91,7 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.4.0
 [1.3.1]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.3.1
 [1.3.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.3.0
 [1.2.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.2.0
