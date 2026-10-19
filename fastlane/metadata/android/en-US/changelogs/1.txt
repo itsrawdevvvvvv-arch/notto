@@ -1,0 +1,11 @@
+First public release.
+
+• Notes with rich text formatting
+• Checklists with tap-to-complete
+• Image notes and drag-and-drop moodboards
+• Free-hand sketch canvas
+• Voice dictation
+• AI import (copy prompt, paste answer)
+• Export notes as PNG, PDF or TXT
+• Pin, filter and sort your notes
+• Fully offline — no internet permission

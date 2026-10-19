@@ -1,0 +1,31 @@
+Notto is a fast, private, offline notes app. Write notes, build checklists, arrange moodboards, doodle and dictate — all in one dark, tactile interface. Everything stays on your device: no account, no tracking, no internet permission.
+
+NOTES
+Rich text with bold, italic, underline, highlights, bullet and numbered lists, custom sizes, colours and fonts.
+
+CHECKLISTS
+Tap to tick items off. Home cards show your progress at a glance.
+
+IMAGE NOTES & MOODBOARDS
+Add photos, stickers and text, then drag, rotate, scale and layer them on a board.
+
+SKETCH
+A smooth free-hand canvas you can drop straight into a note.
+
+VOICE NOTES
+Dictate hands-free and turn speech into a note.
+
+AI IMPORT
+Copy a ready-made prompt into any AI tool, paste the answer back and Notto formats it for you.
+
+EXPORT & SHARE
+Save any note as PNG, PDF or TXT.
+
+ORGANISE
+Pin important notes, filter by type, and sort by recency.
+
+PRIVATE BY DESIGN
+No analytics, no ads, no network access. Your notes live in local storage on your device.
+
+SMALL & FAST
+One lightweight APK, no third-party runtime, works fully offline.

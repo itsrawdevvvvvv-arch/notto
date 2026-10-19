@@ -1,0 +1,56 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.notto.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.notto.app"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+        resourceConfigurations += ["en"]
+    }
+
+    // Optional release signing. Provide these in ~/.gradle/gradle.properties or as
+    // environment variables / CI secrets; otherwise the release build is unsigned.
+    signingConfigs {
+        release {
+            if (System.getenv("NOTTO_KEYSTORE") != null) {
+                storeFile file(System.getenv("NOTTO_KEYSTORE"))
+                storePassword System.getenv("NOTTO_STORE_PASSWORD")
+                keyAlias System.getenv("NOTTO_KEY_ALIAS") ?: "notto"
+                keyPassword System.getenv("NOTTO_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (System.getenv("NOTTO_KEYSTORE") != null) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // The web app ships as-is inside the APK; keep it compressed but unmodified.
+    androidResources {
+        noCompress += []
+    }
+}
+
+// No third-party dependencies: Notto is built only on the Android framework,
+// which keeps the APK tiny and the app fully offline.
+dependencies {
+}
