@@ -1,0 +1,11 @@
+Notto 1.6.0
+
+New
+• Six monochrome clock themes: Bold, Mono, Thin, Flip, Condensed and Dial
+• 12-hour clock with AM/PM, fully animated
+• Fullscreen clock — hide all the controls with one tap
+• Keyboard now has Paste (from any app) and Dictate keys
+
+Fixed
+• Transcribing a recording no longer needs you to play it first
+• Keyboard is snappier and never stutters while typing

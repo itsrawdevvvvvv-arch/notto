@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-19
+
+### Added
+- **Six clock themes**, all monochrome — *Bold, Mono, Thin, Flip, Condensed* and *Dial* (analog + digital). The clock is now **12-hour** with an AM/PM marker, and every theme is fully animated with no layout jitter.
+- **Fullscreen clock** — hide the header, tabs and every control with one tap; tap the face to come back.
+- **Paste and dictate keys on the keyboard.** The app keyboard now has a **Paste** key that pulls in whatever you copied from any other app, and a **mic key** that dictates straight into the note at the caret.
+
+### Changed
+- The keyboard is snappier: keys react on touch-down with instant visual feedback, and caret scrolling is now batched to one animation frame so typing never stutters.
+
+### Fixed
+- **Transcribing a recording no longer needs you to play it.** Notto now feeds the audio to the recogniser itself; if the device refuses that, it automatically plays the clip out loud and lets the recogniser listen to it on its own — no interaction needed either way.
+
 ## [1.5.0] - 2026-10-19
 
 ### Added
@@ -111,7 +124,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.6.0
 [1.5.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.5.0
 [1.4.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.4.0
 [1.3.1]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.3.1

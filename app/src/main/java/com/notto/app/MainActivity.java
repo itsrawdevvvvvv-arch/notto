@@ -5,14 +5,20 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
@@ -85,6 +91,10 @@ public class MainActivity extends Activity {
     private boolean pendingRec = false;
     private int sttRate = 16000;
     private int sttChannels = 1;
+    private int sttStage = 0;
+    private File sttSrc = null;
+    private MediaPlayer sttPlayer = null;
+    private int sttSavedVolume = -1;
     static WeakReference<MainActivity> live = new WeakReference<>(null);
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -663,6 +673,24 @@ public class MainActivity extends Activity {
             });
         }
 
+        @JavascriptInterface
+        public String getClipboard() {
+            try {
+                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                if (cm == null || !cm.hasPrimaryClip()) {
+                    return "";
+                }
+                ClipData cd = cm.getPrimaryClip();
+                if (cd == null || cd.getItemCount() == 0) {
+                    return "";
+                }
+                CharSequence t = cd.getItemAt(0).coerceToText(MainActivity.this);
+                return t == null ? "" : t.toString();
+            } catch (Exception e) {
+                return "";
+            }
+        }
+
         // ---- clock / timer / alarm ----
 
         @JavascriptInterface
@@ -813,57 +841,131 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** Transcribes a saved recording by decoding it to PCM and feeding the recogniser. */
+    /**
+     * Transcribes a saved recording without the user having to play it.
+     * First it tries to hand the decoded audio straight to the recogniser;
+     * if the device will not accept that, it falls back to playing the clip
+     * through the speaker while the recogniser listens on its own.
+     */
     private void transcribe(final String dataUrl) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                    sttBack("error", "unavailable");
-                    return;
-                }
-                File pcm = null;
                 try {
                     int comma = dataUrl.indexOf(',');
                     String meta = dataUrl.substring(5, comma);
                     String mime = meta.split(";")[0];
                     byte[] bytes = Base64.decode(dataUrl.substring(comma + 1), Base64.DEFAULT);
                     String ext = mime.contains("wav") ? ".wav" : ".m4a";
-                    File raw = new File(getCacheDir(), "notto-stt-" + System.currentTimeMillis() + ext);
-                    FileOutputStream fo = new FileOutputStream(raw);
+                    sttSrc = new File(getCacheDir(), "notto-stt-" + System.currentTimeMillis() + ext);
+                    FileOutputStream fo = new FileOutputStream(sttSrc);
                     fo.write(bytes);
                     fo.flush();
                     fo.close();
-                    pcm = decodePcm(raw);
-                    raw.delete();
-                    if (pcm == null) {
-                        sttBack("error", "unavailable");
-                        return;
+
+                    File pcm = decodePcm(sttSrc);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && pcm != null) {
+                        sttStage = 1;
+                        if (startRecogniser(true, pcm)) {
+                            return;
+                        }
                     }
-                    if (recognizer != null) {
-                        try { recognizer.cancel(); } catch (Exception ignored) {}
-                        try { recognizer.destroy(); } catch (Exception ignored) {}
-                        recognizer = null;
-                    }
-                    recognizer = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);
-                    recognizer.setRecognitionListener(new Listener());
-                    ParcelFileDescriptor pfd = ParcelFileDescriptor.open(pcm,
-                            ParcelFileDescriptor.MODE_READ_ONLY);
-                    Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                    i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                    i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-                    i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE, pfd);
-                    i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_CHANNEL_COUNT, sttChannels);
-                    i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_ENCODING,
-                            android.media.AudioFormat.ENCODING_PCM_16BIT);
-                    i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_SAMPLING_RATE, sttRate);
-                    recognizer.startListening(i);
+                    sttStage = 2;
+                    startSpeakerTranscribe();
                 } catch (Exception e) {
                     sttBack("error", "failed");
                 }
             }
         });
+    }
+
+    /** Starts the recogniser; returns false if it could not be started. */
+    private boolean startRecogniser(boolean fromFile, File pcm) {
+        try {
+            if (recognizer != null) {
+                try { recognizer.cancel(); } catch (Exception ignored) {}
+                try { recognizer.destroy(); } catch (Exception ignored) {}
+                recognizer = null;
+            }
+            recognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            recognizer.setRecognitionListener(new Listener());
+            Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+            if (fromFile) {
+                ParcelFileDescriptor pfd = ParcelFileDescriptor.open(pcm,
+                        ParcelFileDescriptor.MODE_READ_ONLY);
+                i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE, pfd);
+                i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_CHANNEL_COUNT, sttChannels);
+                i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_ENCODING,
+                        android.media.AudioFormat.ENCODING_PCM_16BIT);
+                i.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_SAMPLING_RATE, sttRate);
+            }
+            recognizer.startListening(i);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Plays the clip out loud and lets the recogniser listen to it. */
+    private void startSpeakerTranscribe() {
+        try {
+            if (!startRecogniser(false, null)) {
+                sttBack("error", "unavailable");
+                return;
+            }
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    playStt();
+                }
+            }, 350);
+        } catch (Exception e) {
+            sttBack("error", "failed");
+        }
+    }
+
+    private void playStt() {
+        try {
+            if (sttSrc == null || !sttSrc.exists()) {
+                sttBack("error", "failed");
+                return;
+            }
+            stopSttPlayer();
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (am != null) {
+                sttSavedVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+                int max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                am.setStreamVolume(AudioManager.STREAM_MUSIC, max, 0);
+            }
+            sttPlayer = new MediaPlayer();
+            sttPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            sttPlayer.setDataSource(sttSrc.getAbsolutePath());
+            sttPlayer.setVolume(1f, 1f);
+            sttPlayer.prepare();
+            sttPlayer.start();
+        } catch (Exception e) {
+            sttBack("error", "failed");
+        }
+    }
+
+    private void stopSttPlayer() {
+        if (sttPlayer != null) {
+            try { sttPlayer.stop(); } catch (Exception ignored) {}
+            try { sttPlayer.release(); } catch (Exception ignored) {}
+            sttPlayer = null;
+        }
+        if (sttSavedVolume >= 0) {
+            try {
+                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                if (am != null) {
+                    am.setStreamVolume(AudioManager.STREAM_MUSIC, sttSavedVolume, 0);
+                }
+            } catch (Exception ignored) {}
+            sttSavedVolume = -1;
+        }
     }
 
     /** Decodes an audio file to raw 16-bit PCM using MediaCodec. */
@@ -955,6 +1057,21 @@ public class MainActivity extends Activity {
     }
 
     private void sttBack(String type, String text) {
+        if ("error".equals(type) && sttStage == 1) {
+            // the device refused the direct audio feed — listen to it out loud instead
+            sttStage = 2;
+            startSpeakerTranscribe();
+            return;
+        }
+        if (!"partial".equals(type)) {
+            sttStage = 0;
+            stopSttPlayer();
+            if (sttSrc != null) {
+                final File f = sttSrc;
+                sttSrc = null;
+                try { f.delete(); } catch (Exception ignored) {}
+            }
+        }
         js("window.__stt&&window.__stt(" + JSONObject.quote(type) + ","
                 + JSONObject.quote(text == null ? "" : text) + ")");
     }
