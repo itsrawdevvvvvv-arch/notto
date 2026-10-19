@@ -603,7 +603,8 @@ html.light .clockmeta #clkdate{color:#6f6a61}
 #alarmv .ib2{height:56px;border-radius:20px}
 /* ---- masonry home grid (fills the gaps) ---- */
 .masonry{display:block;position:relative}
-.masonry>.card{position:absolute;top:0;left:0;transition:top .38s var(--ease),left .38s var(--ease),opacity .2s var(--ease),transform .25s var(--ease)}
+.masonry>.card{position:absolute;top:0;left:0;contain:layout;transition:top .32s var(--ease),left .32s var(--ease),opacity .2s var(--ease),transform .25s var(--ease)}
+.masonry.mz-noanim>.card{transition:none!important}
 .mz{position:relative}
 html.light #set .chp.on{background:#141414;color:#fff}
 .sheet{max-height:74vh;overflow-y:auto;scrollbar-width:none}
@@ -770,7 +771,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <button class="ib2" id="remtest">Send a test notification</button>
   <p class="hint">Notto will nudge you once a day to write something down.</p>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.7.2</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.7.3</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -829,6 +830,8 @@ function layoutMasonry(root){
  const cards=[...g.querySelectorAll(':scope > .card')];
  if(!cards.length){g.classList.remove('masonry');g.style.height='';return}
  g.classList.add('masonry');
+ const fresh=!g.dataset.laid;
+ if(fresh)g.classList.add('mz-noanim');
  const gap=12,W=g.clientWidth||1,colW=(W-gap)/2;
  const widths=cards.map(c=>(c.classList.contains('cr')||c.classList.contains('wide'))?W:colW);
  cards.forEach((c,i)=>{c.style.width=widths[i]+'px'});
@@ -839,8 +842,12 @@ function layoutMasonry(root){
   else{const col=colH[0]<=colH[1]?0:1;c.style.left=(col*(colW+gap))+'px';c.style.top=colH[col]+'px';colH[col]+=heights[i]+gap}
  });
  g.style.height=Math.max(0,Math.max(colH[0],colH[1])-gap)+'px';
+ g.dataset.laid='1';
+ if(fresh)requestAnimationFrame(()=>requestAnimationFrame(()=>g.classList.remove('mz-noanim')));
 }
 addEventListener('resize',()=>{clearTimeout(mzT);mzT=setTimeout(()=>{layoutMasonry($('#grid'));layoutMasonry($('#ggrid'))},140)});
+let _sig='';
+function sigOf(){return (S.n||[]).map(n=>n.id+':'+n.t+':'+(n.gid||'')).join('|')+'#'+((S.g||[]).map(g=>g.id+':'+(g.title||'')+':'+(g.cv?'1':'')+':'+(g.cover?'1':'')).join('|'))}
 let sT;function softRender(){const g=$('#grid');if(!g)return render();g.classList.add('q');clearTimeout(sT);sT=setTimeout(()=>{render(false);requestAnimationFrame(()=>requestAnimationFrame(()=>g.classList.remove('q')))},120)};
 let ST={theme:'dark',bgc:'',pat:'dots',font:''};try{const _s=JSON.parse(localStorage.getItem('notto.set'));if(_s)Object.assign(ST,_s)}catch(e){}
 if(ST.bgv!==2){ST.bgc='';ST.bgv=2;try{localStorage.setItem('notto.set',JSON.stringify(ST))}catch(e){}}
@@ -904,9 +911,11 @@ function render(anim=true){
  const body=L.map(card).join('');
  g.innerHTML=gs.map(gcard).join('')+(body||(gs.length?'':`<p class="empty">${q?'No notes match \u201c'+esc(S.q.trim())+'\u201d':'Nothing here yet. Tap + to start a note.'}</p>`));
  if(!anim)$$('.card',g).forEach(c=>c.classList.remove('in'));
+ delete g.dataset.laid;
+ layoutMasonry(g);
+ _sig=sigOf();
  requestAnimationFrame(selRender);
  $('#chips').innerHTML=[['all','All'],['imp','Important'],['todo','To-do']].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-k="${k}">${l}${k==='all'?`<i>${S.n.length}</i>`:''}</button>`).join('');
- requestAnimationFrame(()=>layoutMasonry());
 }
 $('#chips').onclick=e=>{const b=e.target.closest('.chip');if(b){S.f=b.dataset.k;softRender()}};
 $('#searchb').onclick=()=>{const b=$('#sbar'),on=!b.classList.contains('on');b.classList.toggle('on',on);if(on)setTimeout(()=>$('#search').focus(),120);else{S.q='';$('#search').value='';render(false)}};
@@ -970,7 +979,7 @@ function renderGroup(){
  $('#grpcov').innerHTML=cov?`<img src="${cov}" alt="">`:`<svg class="i"><use href="#i-board"/></svg>`;
  const el=$('#ggrid');
  el.innerHTML=ms.map(card).join('')||'<p class="empty">No notes in this group yet. Tap below to add some.</p>';
- requestAnimationFrame(()=>layoutMasonry(el));
+ layoutMasonry(el);
 }
 $('#grpx').onclick=()=>{$('#grp').classList.remove('on');gid=null;render()};
 $('#grptitle').onclick=()=>groupRename();
@@ -1125,7 +1134,11 @@ function closeN(){
  const n=cur();getSelection().removeAllRanges();document.activeElement.blur();
  if(n&&!n.title&&!(n.html||'').replace(/<[^>]+>/g,'').trim()&&!(n.items||[]).some(x=>x.t)&&!n.cover&&!n.sketch)S.n=S.n.filter(x=>x!==n);
  else if(n&&!n.title)n.title='Untitled';
- $('#edit').classList.remove('on');app.classList.remove('ed','kb');S.id=null;save();setTimeout(()=>render(false),60);
+  $('#edit').classList.remove('on');app.classList.remove('ed','kb');S.id=null;save();
+ const want=sigOf();
+ setTimeout(()=>{if(S.id!==null)return;
+  if(want!==_sig){render(false)}
+  else{const g=$('#grid');if(g){delete g.dataset.laid;layoutMasonry(g)}}},300);
 }
 $('#back').onclick=closeN;
 title.oninput=()=>{const n=cur();n.title=title.textContent;n.t=Date.now();save()};

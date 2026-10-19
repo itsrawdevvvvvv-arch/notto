@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.3] - 2026-10-19
+
+### Fixed
+- **Closing a note is smooth now.** Two separate causes were behind the jitter:
+  1. Every time the home grid was rebuilt, its cards were created with no position and then moved into place — so they visibly flew in from the top-left corner and overlapped on the way. A freshly built grid is now laid out in the same frame it is created, with transitions off for that first pass, so the cards simply *are* where they belong.
+  2. The whole grid was being rebuilt 60 ms after the close, in the middle of the editor's slide-away animation. The rebuild now waits until the animation has finished, and **is skipped entirely if the note wasn't changed** — so just opening and closing a note no longer rebuilds anything at all.
+
+### Changed
+- Cards use CSS layout containment, which cuts the cost of re-laying out the grid.
+
 ## [1.7.2] - 2026-10-19
 
 ### Fixed
@@ -150,7 +160,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.7.2...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.7.3...HEAD
+[1.7.3]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.3
 [1.7.2]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.2
 [1.7.1]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.1
 [1.7.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.0
