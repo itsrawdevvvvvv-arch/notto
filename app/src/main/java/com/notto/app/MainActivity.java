@@ -7,11 +7,14 @@ import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +24,10 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Base64;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
@@ -31,11 +38,14 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -45,9 +55,10 @@ import java.util.Locale;
 /**
  * Notto — a fast, offline notes app.
  *
- * The whole UI is a single self-contained HTML/CSS/JS document served from the
- * app assets. This activity hosts it in a WebView and bridges the few things a
- * WebView cannot do by itself: saving exports, speech-to-text, and reminders.
+ * The UI is a single self-contained HTML/CSS/JS document served from the app
+ * assets. This activity hosts it and bridges the few things a WebView cannot do
+ * by itself: saving exports, speech to text, audio recording, reminders and the
+ * home-screen widgets.
  */
 public class MainActivity extends Activity {
 
@@ -56,10 +67,13 @@ public class MainActivity extends Activity {
     private static final int REQ_NOTIF = 1003;
     private static final String BG = "#0b0b0b";
     static final String CHANNEL = "notto.reminders";
+    static final String PREFS = "notto.prefs";
 
     private WebView web;
     private ValueCallback<Uri[]> filePathCallback;
     private SpeechRecognizer recognizer;
+    private MediaRecorder recorder;
+    private File recFile;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -71,7 +85,7 @@ public class MainActivity extends Activity {
         w.setNavigationBarColor(Color.parseColor(BG));
         ensureChannel(this);
 
-        web = new WebView(this);
+        web = new NottoWebView(this);
         web.setBackgroundColor(Color.parseColor(BG));
 
         WebSettings s = web.getSettings();
@@ -116,8 +130,6 @@ public class MainActivity extends Activity {
                 try {
                     Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                     i.addCategory(Intent.CATEGORY_OPENABLE);
-                    // Accept types such as ".ttf" are not MIME types; fall back to */*
-                    // so the system file picker still shows files.
                     String type = "*/*";
                     String[] accept = params.getAcceptTypes();
                     if (accept != null) {
@@ -154,11 +166,10 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Pass system bar sizes to CSS so nothing sits under a notch or nav bar.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            web.setOnApplyWindowInsetsListener(new android.view.View.OnApplyWindowInsetsListener() {
+            web.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                 @Override
-                public WindowInsets onApplyWindowInsets(android.view.View v, WindowInsets insets) {
+                public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
                     int top = 0, bottom = 0;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
@@ -177,6 +188,69 @@ public class MainActivity extends Activity {
         web.addJavascriptInterface(new Bridge(), "NottoBridge");
         web.loadUrl("file:///android_asset/index.html");
         setContentView(web);
+    }
+
+    /**
+     * WebView that keeps Android's floating text toolbar hidden while leaving
+     * text selection itself completely intact: instead of returning null (which
+     * aborts Chromium's selection flow), we hand back a no-op ActionMode whose
+     * menu is never shown.
+     */
+    private class NottoWebView extends WebView {
+        NottoWebView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public ActionMode startActionMode(ActionMode.Callback callback, int type) {
+            if (type == ActionMode.TYPE_FLOATING) {
+                return ghost(callback);
+            }
+            return super.startActionMode(callback, type);
+        }
+
+        @Override
+        public ActionMode startActionMode(ActionMode.Callback callback) {
+            return ghost(callback);
+        }
+    }
+
+    private ActionMode ghost(ActionMode.Callback cb) {
+        GhostActionMode g = new GhostActionMode(cb);
+        try {
+            if (cb != null) {
+                cb.onCreateActionMode(g, g.getMenu());
+            }
+        } catch (Exception ignored) {
+        }
+        return g;
+    }
+
+    private class GhostActionMode extends ActionMode {
+        private final Menu menu;
+
+        GhostActionMode(ActionMode.Callback cb) {
+            Menu m;
+            try {
+                m = new PopupMenu(MainActivity.this, web).getMenu();
+            } catch (Exception e) {
+                m = null;
+            }
+            this.menu = m;
+        }
+
+        @Override public void setTitle(CharSequence title) { }
+        @Override public void setTitle(int resId) { }
+        @Override public void setSubtitle(CharSequence subtitle) { }
+        @Override public void setSubtitle(int resId) { }
+        @Override public void setCustomView(View view) { }
+        @Override public void invalidate() { }
+        @Override public void finish() { }
+        @Override public Menu getMenu() { return menu; }
+        @Override public CharSequence getTitle() { return ""; }
+        @Override public CharSequence getSubtitle() { return ""; }
+        @Override public View getCustomView() { return null; }
+        @Override public MenuInflater getMenuInflater() { return MainActivity.this.getMenuInflater(); }
     }
 
     private void setCssInsets(int topPx, int bottomPx) {
@@ -234,12 +308,20 @@ public class MainActivity extends Activity {
             recognizer.destroy();
             recognizer = null;
         }
+        if (recorder != null) {
+            try {
+                recorder.release();
+            } catch (Exception ignored) {
+            }
+            recorder = null;
+        }
         super.onDestroy();
     }
 
     // ------------------------------------------------------------------ bridge
 
     public class Bridge {
+
         @JavascriptInterface
         public void saveFile(String name, String dataUrl) {
             try {
@@ -380,43 +462,140 @@ public class MainActivity extends Activity {
             });
         }
 
-        // ---- daily reminder ----
+        // ---- audio recording (native MediaRecorder: reliable inside a WebView) ----
+
+        @JavascriptInterface
+        public void startRecording() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                            && checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC);
+                        recBack("error", "permission");
+                        return;
+                    }
+                    try {
+                        recFile = new File(getCacheDir(),
+                                "notto-rec-" + System.currentTimeMillis() + ".m4a");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            recorder = new MediaRecorder(MainActivity.this);
+                        } else {
+                            recorder = new MediaRecorder();
+                        }
+                        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                        recorder.setAudioChannels(1);
+                        recorder.setAudioSamplingRate(44100);
+                        recorder.setAudioEncodingBitRate(64000);
+                        recorder.setOutputFile(recFile.getAbsolutePath());
+                        recorder.prepare();
+                        recorder.start();
+                        recBack("start", "");
+                    } catch (Exception e) {
+                        cleanupRec();
+                        recBack("error", "failed");
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void stopRecording() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (recorder == null) {
+                        return;
+                    }
+                    try {
+                        recorder.stop();
+                    } catch (Exception e) {
+                        cleanupRec();
+                        recBack("error", "failed");
+                        return;
+                    }
+                    try {
+                        recorder.release();
+                    } catch (Exception ignored) {
+                    }
+                    recorder = null;
+                    try {
+                        FileInputStream in = new FileInputStream(recFile);
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        byte[] buf = new byte[8192];
+                        int r;
+                        while ((r = in.read(buf)) > 0) {
+                            bos.write(buf, 0, r);
+                        }
+                        in.close();
+                        String b64 = Base64.encodeToString(bos.toByteArray(), Base64.NO_WRAP);
+                        recBack("done", "data:audio/mp4;base64," + b64);
+                    } catch (Exception e) {
+                        recBack("error", "failed");
+                    } finally {
+                        cleanupRec();
+                    }
+                }
+            });
+        }
+
+        // ---- reminders ----
 
         @JavascriptInterface
         public void scheduleReminder(int hour, int minute) {
-            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            if (am == null) return;
-            PendingIntent pi = reminderIntent();
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.HOUR_OF_DAY, hour);
-            c.set(Calendar.MINUTE, minute);
-            c.set(Calendar.SECOND, 0);
-            if (c.getTimeInMillis() <= System.currentTimeMillis()) {
-                c.add(Calendar.DAY_OF_YEAR, 1);
-            }
-            try {
-                am.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(),
-                        AlarmManager.INTERVAL_DAY, pi);
-            } catch (Exception ignored) {
-            }
+            getSharedPreferences(PREFS, 0).edit()
+                    .putInt("remHour", hour).putInt("remMin", minute).putBoolean("remOn", true).apply();
+            ReminderReceiver.schedule(MainActivity.this, hour, minute);
         }
 
         @JavascriptInterface
         public void cancelReminder() {
-            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            if (am != null) {
-                am.cancel(reminderIntent());
-            }
+            getSharedPreferences(PREFS, 0).edit().putBoolean("remOn", false).apply();
+            ReminderReceiver.cancel(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public void testNotification() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ReminderReceiver.post(MainActivity.this, "Notto",
+                            "Reminders are working. This is a test.");
+                    toast("Test notification sent");
+                }
+            });
+        }
+
+        // ---- home-screen widgets ----
+
+        @JavascriptInterface
+        public void updateWidget(String json) {
+            WidgetData.set(MainActivity.this, json);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    refreshWidgets(MainActivity.this);
+                }
+            });
         }
     }
 
-    private PendingIntent reminderIntent() {
-        Intent i = new Intent(this, ReminderReceiver.class);
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
+    private void cleanupRec() {
+        try {
+            if (recorder != null) {
+                recorder.release();
+            }
+        } catch (Exception ignored) {
         }
-        return PendingIntent.getBroadcast(this, 7, i, flags);
+        recorder = null;
+        if (recFile != null && recFile.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            recFile.delete();
+        }
+        recFile = null;
     }
 
     private class Listener implements RecognitionListener {
@@ -440,15 +619,45 @@ public class MainActivity extends Activity {
     }
 
     private void speechBack(String type, String text) {
-        final String js = "window.__speech&&window.__speech(" + JSONObject.quote(type) + ","
-                + JSONObject.quote(text == null ? "" : text) + ")";
+        js("window.__speech&&window.__speech(" + JSONObject.quote(type) + ","
+                + JSONObject.quote(text == null ? "" : text) + ")");
+    }
+
+    private void recBack(String type, String data) {
+        js("window.__rec&&window.__rec(" + JSONObject.quote(type) + ","
+                + JSONObject.quote(data == null ? "" : data) + ")");
+    }
+
+    private void js(final String code) {
         if (web != null) {
             web.post(new Runnable() {
                 @Override
                 public void run() {
-                    web.evaluateJavascript(js, null);
+                    web.evaluateJavascript(code, null);
                 }
             });
+        }
+    }
+
+    static void refreshWidgets(Context c) {
+        Class<?>[] providers = {NottoWidgetProvider.class, ChecklistWidgetProvider.class,
+                BoardWidgetProvider.class};
+        AppWidgetManager mgr = AppWidgetManager.getInstance(c);
+        if (mgr == null) {
+            return;
+        }
+        for (Class<?> p : providers) {
+            try {
+                int[] ids = mgr.getAppWidgetIds(new ComponentName(c, p));
+                if (ids == null || ids.length == 0) {
+                    continue;
+                }
+                Intent i = new Intent(c, p);
+                i.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                i.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+                c.sendBroadcast(i);
+            } catch (Exception ignored) {
+            }
         }
     }
 

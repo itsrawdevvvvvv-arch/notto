@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-19
+
+### Added
+- **Splash screen** — a smooth animated launch screen with the Notto mark.
+- **Pre-made widgets** — *Notto* (quick open), *Checklist* (your latest checklist) and *Moodboard* (your latest board).
+- **Send a test notification** button in Settings, to check reminders work.
+- Reminders re-arm themselves after a phone restart.
+
+### Changed
+- Search, filter and sort now fade smoothly instead of snapping.
+- Background colour gained an **Auto** option and follows the theme by default.
+
+### Fixed
+- **Dark mode is dark again** — a previously chosen background colour could leave a light background in dark theme; it now defaults to Auto.
+- **Voice recording now works** — recording is done natively, because the WebView blocked the browser recorder.
+- **Notifications** now use a proper status-bar icon (the old one could be rejected) and request permission when reminders are switched on.
+- **Android's copy/paste toolbar is hidden again** — this time without breaking text selection.
+
 ## [1.2.0] - 2026-10-19
 
 ### Added
@@ -65,7 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.3.0
 [1.2.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.2.0
 [1.1.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.1.0
 [1.0.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.0.0

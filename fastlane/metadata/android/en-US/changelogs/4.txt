@@ -1,0 +1,16 @@
+Notto 1.3.0
+
+New
+• Animated splash screen
+• Pre-made home-screen widgets: Notto, Checklist and Moodboard
+• "Send a test notification" button in Settings
+• Reminders survive a phone restart
+
+Fixed
+• Dark mode is dark again (background colour now defaults to Auto)
+• Voice recording now works (recorded natively)
+• Notifications use a proper icon and ask for permission
+• Android's copy/paste toolbar is hidden again — selection still works
+
+Improved
+• Smooth fade when searching, filtering or sorting

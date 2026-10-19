@@ -436,9 +436,30 @@ html.light .chip{box-shadow:0 1px 2px rgba(20,16,10,.04)}
 #body audio{width:100%;display:block;margin:8px 0;border-radius:14px}
 /* reminder controls */
 .swrow{justify-content:space-between}
-.sc2 input[type=checkbox]{width:44px;height:26px;accent-color:#f6cf3d;margin-left:auto}
 .sc2 input[type=time]{margin-left:auto;background:#161616;color:#fff;border:1px solid #333;border-radius:12px;padding:8px 12px;font:inherit;font-size:14px}
 html.light #set input[type=time]{background:#fff;color:#141414;border-color:#e2ddd3}
+/* ---- splash / loading screen ---- */
+.splash{position:absolute;inset:0;z-index:60;display:grid;place-items:center;background:#0b0b0b;overflow:hidden;contain:layout paint;transition:opacity .55s var(--ease),transform .7s var(--ease)}
+.splash.off{opacity:0;transform:scale(1.05);pointer-events:none}
+.splash .glow{position:absolute;width:140%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(252,98,63,.30),rgba(252,98,63,.08) 42%,transparent 66%);transform:scale(.15);opacity:0;animation:sGlow 1.6s var(--ease) forwards}
+.splash .star{position:absolute;width:62vmin;height:62vmin;background:#f6cf3d;clip-path:polygon(50.00% 0.00%, 58.04% 30.60%, 85.36% 14.64%, 69.40% 41.96%, 100.00% 50.00%, 69.40% 58.04%, 85.36% 85.36%, 58.04% 69.40%, 50.00% 100.00%, 41.96% 69.40%, 14.64% 85.36%, 30.60% 58.04%, 0.00% 50.00%, 30.60% 41.96%, 14.64% 14.64%, 41.96% 30.60%);transform:scale(0) rotate(-28deg);opacity:0;animation:sStar 1.6s var(--spring) forwards}
+.splash .slogo{position:relative;width:124px;height:124px;border-radius:30px;transform:scale(.35) rotate(-8deg);opacity:0;box-shadow:0 22px 60px rgba(252,98,63,.45);animation:sLogo 1.6s var(--spring) .08s forwards}
+@keyframes sGlow{0%{transform:scale(.15);opacity:0}45%{opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes sStar{0%{transform:scale(0) rotate(-28deg);opacity:0}58%{transform:scale(1.06) rotate(2deg);opacity:1}78%{transform:scale(.97) rotate(0)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes sLogo{0%{transform:scale(.35) rotate(-8deg);opacity:0}55%{transform:scale(1.09) rotate(2deg);opacity:1}78%{transform:scale(.98) rotate(0)}100%{transform:scale(1) rotate(0);opacity:1}}
+/* ---- soft, non-jarring list updates ---- */
+#grid{transition:opacity .2s var(--ease),transform .3s var(--ease);transform-origin:50% 0}
+#grid.q{opacity:0;transform:translateY(7px) scale(.986)}
+/* ---- reminder toggle switch ---- */
+.swrow{justify-content:space-between}
+.tgl{position:relative;display:inline-block;width:52px;height:32px;flex:none}
+.tgl input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;z-index:1}
+.tgl i{position:absolute;inset:0;border-radius:16px;background:#2c2c2c;transition:background .28s var(--ease)}
+.tgl i::after{content:'';position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .34s var(--spring)}
+.tgl input:checked+i{background:#f6cf3d}
+.tgl input:checked+i::after{transform:translateX(20px)}
+html.light .tgl i{background:#d9d4c9}
+html.light .tgl input:checked+i{background:#f6cf3d}
 html.light #set .chp.on{background:#141414;color:#fff}
 .sheet{max-height:74vh;overflow-y:auto;scrollbar-width:none}
 .sheet::-webkit-scrollbar{display:none}
@@ -468,6 +489,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
 <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V4.500h4V7M7 7l1 13h8l1-13M10 11v5M14 11v5"/></symbol><symbol id="i-ai" viewBox="0 0 24 24"><path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800zM18 16l.8 2.200 2.200.8-2.200.8L18 22l-.8-2.200L15 19l2.200-.8z"/></symbol><symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 6L4 11l5 5M4 11h10a6 6 0 010 12"/></symbol><symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 6l5 5-5 5M20 11H10a6 6 0 000 12"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol><symbol id="i-grip" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14"/></symbol><symbol id="i-cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6 2-3 6z"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.500"/><circle cx="18" cy="6" r="2.500"/><path d="M8 16.500C12 12.500 12 11.500 16 7.500"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.600 5.600 6.100.7-4.500 4.200 1.200 6L12 16.500 6.600 19.500l1.200-6L3.300 9.300l6.100-.7z"/></symbol><symbol id="i-board" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></symbol><symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8l1.6 2.4 2.8-.6.5 2.8 2.6 1.2-1.4 2.5 1.4 2.5-2.6 1.2-.5 2.8-2.8-.6L12 21.2l-1.6-2.4-2.8.6-.5-2.8-2.6-1.2L5.9 13 4.5 10.5l2.6-1.2.5-2.8 2.8.6z"/></symbol><symbol id="i-sort" viewBox="0 0 24 24"><path d="M4 6h16M6 12h12M9 18h6"/></symbol><symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol><symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></symbol><symbol id="i-up" viewBox="0 0 24 24"><path d="M12 21V9M7 13l5-5 5 5M5 3h14"/></symbol><symbol id="i-font" viewBox="0 0 24 24"><path d="M5 19L12 4l7 15M8 14h8"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></symbol><symbol id="i-recycle" viewBox="0 0 24 24"><path d="M7 19V8M4 11l3-3 3 3M17 5v11M14 13l3 3 3-3"/></symbol><symbol id="i-bg" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 15l3-3 2 2 3-3 2 2"/></symbol></defs></svg>
 
 <div id="app">
+ <div class="splash" id="splash"><span class="glow"></span><span class="star"></span><img class="slogo" src="splash.png" alt=""></div>
  <section class="v list">
   <div class="scroll" id="sc">
    <div class="top"><div class="brand"><b></b>Notto</div><div class="hr"><button class="rb" id="searchb" aria-label="Search"><svg class="i"><use href="#i-search"/></svg></button><button class="rb" id="setb" aria-label="Settings"><svg class="i"><use href="#i-gear"/></svg></button><button class="rb" id="sortb" aria-label="Sort and filter"><svg class="i"><use href="#i-sort"/></svg></button></div></div>
@@ -527,7 +549,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
  <div class="cbar"><button class="eb dk" id="setx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Settings</b><span style="width:46px"></span></div>
  <div class="grp"><h3>Appearance</h3>
   <div class="seg" id="themeseg"><button data-th="system">System</button><button data-th="dark">Dark</button><button data-th="light">Light</button></div>
-  <label>Background colour<input type="color" id="bgcol" value="#0b0b0b"></label>
+  <label>Background colour<button class="chp" id="bgauto">Auto</button><input type="color" id="bgcol" value="#0b0b0b"></label>
   <div class="chs" id="bgpats"></div>
  </div>
  <div class="grp"><h3>Fonts</h3><div class="chs" id="allfonts"></div><button class="ib2" id="fontimp">Import a font file (.ttf .otf .woff)</button></div>
@@ -536,11 +558,12 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <button class="ib2" id="trashb">Recycle bin</button>
  </div>
  <div class="grp"><h3>Reminders</h3>
-  <label class="swrow">Daily reminder<input type="checkbox" id="remon"></label>
+  <label class="swrow">Daily reminder<span class="tgl"><input type="checkbox" id="remon"><i></i></span></label>
   <label>Time<input type="time" id="remtime" value="20:00"></label>
+  <button class="ib2" id="remtest">Send a test notification</button>
   <p class="hint">Notto will nudge you once a day to write something down.</p>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.2.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.3.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -576,8 +599,26 @@ let S={n:seed,f:'all',id:null,q:'',sort:'recent'};
 try{const r=JSON.parse(localStorage.getItem(K));if(r&&r.length)S.n=r}catch(e){}
 const DB=new Promise(ok=>{try{const r=indexedDB.open('notto',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>ok(null)}catch(e){ok(null)}});
 const kv=(m,k,v)=>DB.then(d=>d?new Promise(ok=>{const t=d.transaction('kv',m==='get'?'readonly':'readwrite'),o=t.objectStore('kv'),r=m==='get'?o.get(k):o.put(v,k);r.onsuccess=()=>ok(r.result);r.onerror=()=>ok()}):null);
-let st;const save=()=>{clearTimeout(st);st=setTimeout(()=>DB.then(d=>{if(d)kv('put','notes',S.n);else try{localStorage.setItem(K,JSON.stringify(S.n))}catch(e){}}),300)};
+let st;const save=()=>{clearTimeout(st);st=setTimeout(()=>{DB.then(d=>{if(d)kv('put','notes',S.n);else try{localStorage.setItem(K,JSON.stringify(S.n))}catch(e){}});pushWidget()},300)};
+let _wp='';
+function widgetPayload(){const td=S.n.find(n=>n.type==='todo'),bd=S.n.find(n=>n.type==='board');return JSON.stringify({count:S.n.length,todos:S.n.filter(n=>n.type==='todo').length,boards:S.n.filter(n=>n.type==='board').length,todo:td?{title:td.title||'Checklist',items:(td.items||[]).slice(0,5).map(x=>({t:(x.t||'').slice(0,60),d:x.d?1:0}))}:null,board:bd?{title:bd.title||'Moodboard',thumb:bd.pv||''}:null})}
+let _wtSrc='',_wtVal='';
+async function pushWidget(){
+ try{
+  if(!(window.NottoBridge&&NottoBridge.updateWidget))return;
+  const td=S.n.find(n=>n.type==='todo'),bd=S.n.find(n=>n.type==='board');
+  let thumb='';
+  if(bd&&bd.pv){
+   if(bd.pv===_wtSrc){thumb=_wtVal}
+   else{try{const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=bd.pv});const w=220,h=Math.max(1,Math.round(220*im.height/im.width));const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);thumb=c.toDataURL('image/jpeg',.72);_wtSrc=bd.pv;_wtVal=thumb}catch(e){thumb=_wtVal}}
+  }
+  const j=JSON.stringify({count:S.n.length,todos:S.n.filter(n=>n.type==='todo').length,boards:S.n.filter(n=>n.type==='board').length,todo:td?{title:td.title||'Checklist',items:(td.items||[]).slice(0,5).map(x=>({t:(x.t||'').slice(0,60),d:x.d?1:0}))}:null,board:bd?{title:bd.title||'Moodboard',thumb:thumb}:null});
+  if(j===_wp)return;_wp=j;NottoBridge.updateWidget(j);
+ }catch(e){}
+}
+let sT;function softRender(){const g=$('#grid');if(!g)return render();g.classList.add('q');clearTimeout(sT);sT=setTimeout(()=>{render(false);requestAnimationFrame(()=>requestAnimationFrame(()=>g.classList.remove('q')))},120)};
 let ST={theme:'dark',bgc:'',pat:'dots',font:''};try{const _s=JSON.parse(localStorage.getItem('notto.set'));if(_s)Object.assign(ST,_s)}catch(e){}
+if(ST.bgv!==2){ST.bgc='';ST.bgv=2;try{localStorage.setItem('notto.set',JSON.stringify(ST))}catch(e){}}
 const setSave=()=>{try{localStorage.setItem('notto.set',JSON.stringify(ST))}catch(e){}};
 let TR=[];const trashSave=()=>DB.then(d=>{if(d)kv('put','trash',TR)});
 const lum=h=>{const n=parseInt(String(h).slice(1),16);return(.299*(n>>16)+.587*(n>>8&255)+.114*(n&255))/255};
@@ -609,9 +650,9 @@ function render(anim=true){
  if(!anim)$$('.card',g).forEach(c=>c.classList.remove('in'));
  $('#chips').innerHTML=[['all','All'],['imp','Important'],['todo','To-do']].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-k="${k}">${l}${k==='all'?`<i>${S.n.length}</i>`:''}</button>`).join('');
 }
-$('#chips').onclick=e=>{const b=e.target.closest('.chip');if(b){S.f=b.dataset.k;render()}};
+$('#chips').onclick=e=>{const b=e.target.closest('.chip');if(b){S.f=b.dataset.k;softRender()}};
 $('#searchb').onclick=()=>{const b=$('#sbar'),on=!b.classList.contains('on');b.classList.toggle('on',on);if(on)setTimeout(()=>$('#search').focus(),120);else{S.q='';$('#search').value='';render(false)}};
-$('#search').oninput=e=>{S.q=e.target.value;render(false)};
+$('#search').oninput=e=>{S.q=e.target.value;softRender()};
 $('#searchx').onclick=()=>{$('#search').value='';S.q='';render(false);$('#search').focus()};
 $('#grid').onclick=e=>{
  if(held){held=0;return}
@@ -631,8 +672,8 @@ $('#sheet').onclick=e=>{
  const vb=e.target.closest('[data-v]');
  if(vb){app.classList.remove('mn');if(vb.dataset.v==='dictate')voice();else record();return}
  const sb=e.target.closest('[data-so]'),sf=e.target.closest('[data-sf]');
- if(sb){S.sort=sb.dataset.so;app.classList.remove('mn');render();toast('Sorted');return}
- if(sf){S.f=sf.dataset.sf;app.classList.remove('mn');render();toast('Filtered');return}
+ if(sb){S.sort=sb.dataset.so;app.classList.remove('mn');softRender();toast('Sorted');return}
+ if(sf){S.f=sf.dataset.sf;app.classList.remove('mn');softRender();toast('Filtered');return}
  const b=e.target.closest('[data-m],[data-x]');if(!b)return;if(b.dataset.x){app.classList.remove('mn');doExport(b.dataset.x);return}const n=S.n.find(x=>x.id===hid),m=b.dataset.m;
  if(m==='del'&&!b.dataset.s){b.dataset.s=1;b.lastChild.textContent='Tap again to delete';return}
  if(m==='cov'){app.classList.remove('mn');coverOpen(hid);return}
@@ -665,7 +706,19 @@ function newN(type,sk,html,cover){
 }
 function voiceMenu(){$('#sheet').innerHTML='<b>Voice</b><button data-v="dictate">'+ic('mic')+'Dictate \u2014 speech to text</button><button data-v="record">'+ic('mic')+'Record audio</button>';app.classList.add('mn')}
 let recorder=null,recBuf=[],recSrc=null;
+window.__rec=(type,data)=>{
+ if(type==='start'){toast('Recording\u2026 tap Record again to stop');return}
+ if(type==='error'){toast(data==='permission'?'Microphone permission needed':'Could not record audio');return}
+ if(type==='done'&&data){const nn=newN('note',false,'<p><audio controls preload="metadata" src="'+data+'"></audio></p>');nn.title='Voice recording';save();render();toast('Recording saved')}
+};
+let nrec=false;
 async function record(){
+ if(window.NottoBridge&&NottoBridge.startRecording){
+  nrec=!nrec;
+  if(nrec){if(NottoBridge.requestMic)NottoBridge.requestMic();NottoBridge.startRecording()}
+  else NottoBridge.stopRecording();
+  return;
+ }
  if(recorder){try{recorder.stop()}catch(e){}return}
  try{
   if(window.NottoBridge&&NottoBridge.requestMic)NottoBridge.requestMic();
@@ -1058,16 +1111,18 @@ function applyBg(){const els=['.list','#set','#trashv'].map(x=>$(x)).filter(Bool
  else if(p==='diagonal'){img=`repeating-linear-gradient(45deg,${line} 0 1px,transparent 1px 13px)`}
  else if(p==='circles'){img=`radial-gradient(circle,transparent 6px,${dot} 6.6px,transparent 7.6px)`;size='26px 26px'}
  els.forEach(el=>{el.style.background=c;el.style.backgroundImage=img;el.style.backgroundSize=size;el.style.backgroundColor=c})}
-function syncSet(){$$('#themeseg button').forEach(b=>b.classList.toggle('on',b.dataset.th===(ST.theme||'system')));$('#bgcol').value=(ST.bgc||'#0b0b0b');$$('#bgpats .chp').forEach(b=>b.classList.toggle('on',b.dataset.p===(ST.pat||'dots')));$('#allfonts').innerHTML=FN.map(f=>`<button class="chp ${(ST.font||'Montserrat')===f[0]?'on':''}" data-fn="${f[0]}" style="font-family:'${f[0]}',system-ui,sans-serif;font-weight:${f[1]}">${f[0]}</button>`).join('');$('#remon').checked=!!ST.rem;$('#remtime').value=ST.remtime||'20:00'}
+function syncSet(){$$('#themeseg button').forEach(b=>b.classList.toggle('on',b.dataset.th===(ST.theme||'system')));$('#bgcol').value=(ST.bgc||'#0b0b0b');$$('#bgpats .chp').forEach(b=>b.classList.toggle('on',b.dataset.p===(ST.pat||'dots')));$('#allfonts').innerHTML=FN.map(f=>`<button class="chp ${(ST.font||'Montserrat')===f[0]?'on':''}" data-fn="${f[0]}" style="font-family:'${f[0]}',system-ui,sans-serif;font-weight:${f[1]}">${f[0]}</button>`).join('');$('#remon').checked=!!ST.rem;$('#remtime').value=ST.remtime||'20:00';$('#bgauto').classList.toggle('on',!ST.bgc);$('#bgcol').value=ST.bgc||(document.documentElement.classList.contains('light')?'#f2f0eb':'#0b0b0b');$('#bgcol').style.opacity=ST.bgc?1:.4}
 $('#allfonts').onclick=e=>{const b=e.target.closest('[data-fn]');if(!b)return;ST.font=b.dataset.fn;setSave();applyFont();syncSet()};
 $('#remon').onchange=()=>{const on=$('#remon').checked;
  if(on){if(window.NottoBridge&&NottoBridge.requestNotif)NottoBridge.requestNotif();const t=($('#remtime').value||'20:00').split(':');if(window.NottoBridge&&NottoBridge.scheduleReminder)NottoBridge.scheduleReminder(+t[0],+t[1]);ST.rem=1;setSave();toast('Daily reminder on')}
  else{if(window.NottoBridge&&NottoBridge.cancelReminder)NottoBridge.cancelReminder();ST.rem=0;setSave();toast('Reminder off')}};
+$('#remtest').onclick=()=>{if(window.NottoBridge&&NottoBridge.requestNotif)NottoBridge.requestNotif();if(window.NottoBridge&&NottoBridge.testNotification)NottoBridge.testNotification();else toast('Open the app to test notifications')};
 $('#remtime').onchange=()=>{ST.remtime=$('#remtime').value;setSave();if($('#remon').checked&&window.NottoBridge&&NottoBridge.scheduleReminder){const t=$('#remtime').value.split(':');NottoBridge.scheduleReminder(+t[0],+t[1]);toast('Reminder set')}};
 $('#setb').onclick=()=>{syncSet();$('#set').classList.add('on')};
 $('#setx').onclick=()=>$('#set').classList.remove('on');
 $('#themeseg').onclick=e=>{const b=e.target.closest('[data-th]');if(!b)return;ST.theme=b.dataset.th;setSave();applyTheme();applyBg();syncSet()};
-$('#bgcol').oninput=e=>{ST.bgc=e.target.value;setSave();applyBg()};
+$('#bgcol').oninput=e=>{ST.bgc=e.target.value;setSave();applyBg();syncSet()};
+$('#bgauto').onclick=()=>{ST.bgc='';setSave();applyBg();syncSet();toast('Background follows the theme')};
 $('#bgpats').innerHTML=[['dots','Dots'],['none','Plain'],['grid','Grid'],['diagonal','Diagonal'],['circles','Circles']].map(([k,l])=>`<button class="chp ${(ST.pat||'dots')===k?'on':''}" data-p="${k}">${l}</button>`).join('');
 $('#bgpats').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;ST.pat=b.dataset.p;setSave();applyBg();$$('#bgpats .chp').forEach(x=>x.classList.toggle('on',x===b))};
 let CF=[];
@@ -1088,6 +1143,9 @@ $('#gfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f
 (async()=>{let r=await kv('get','notes');if(!r){try{r=JSON.parse(localStorage.getItem(K))}catch(e){}}if(r&&r.length)S.n=r;
  const t=await kv('get','trash');if(t&&t.length){const cut=Date.now()-2592e6;TR=t.filter(x=>x&&x.n&&(x.at||0)>cut)}
  await loadCF();applyFont();applyTheme();applyBg();render();
+ const _sp=$('#splash');
+ if(_sp){setTimeout(()=>_sp.classList.add('off'),1500);setTimeout(()=>{try{_sp.remove()}catch(e){_sp.style.display='none'}},2200)}
+ pushWidget();
  if(window.matchMedia)try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{if((ST.theme||'system')==='system'){applyTheme();applyBg()}})}catch(e){}})();
 })();
 </script>
