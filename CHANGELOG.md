@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-10-19
+
+### Added
+- **Multi-select on the home screen.** Long-press any note to start selecting, tap more to add them, then use **Select all** to grab everything. The bar gives you **Group**, **More** (the usual note options) and **Delete**.
+- **Groups.** Turn a selection into a group, or open a group and add notes to it. Each group has its **own title** (tap it to rename) and its **own cover** — you can set one from your gallery or build it in the full cover editor, exactly like a note.
+- Groups appear as a card on the home screen showing their cover and how many notes are inside; the notes themselves live inside the group rather than cluttering the main list.
+
+### Fixed
+- **`confirm()` dialogs now work.** A WebView silently ignores JavaScript `confirm()` unless the app handles it, which meant **Empty recycle bin** never actually ran. Native dialogs for alert/confirm/prompt are now wired up.
+
 ## [1.6.0] - 2026-10-19
 
 ### Added
@@ -124,7 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.0
 [1.6.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.6.0
 [1.5.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.5.0
 [1.4.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.4.0

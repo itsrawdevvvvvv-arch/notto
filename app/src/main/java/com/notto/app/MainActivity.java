@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.media.MediaCodec;
@@ -22,6 +23,7 @@ import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -42,6 +44,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
+import android.webkit.JsPromptResult;
+import android.webkit.JsResult;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -49,6 +53,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -170,6 +175,62 @@ public class MainActivity extends Activity {
                 } catch (Exception e) {
                     filePathCallback = null;
                     return false;
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
+                try {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage(message)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int w) { result.confirm(); }
+                            })
+                            .setCancelable(false).show();
+                } catch (Exception e) {
+                    result.confirm();
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+                try {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage(message)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int w) { result.confirm(); }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int w) { result.cancel(); }
+                            })
+                            .setCancelable(false).show();
+                } catch (Exception e) {
+                    result.cancel();
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onJsPrompt(WebView view, String url, String message, String defaultValue,
+                                      final JsPromptResult result) {
+                try {
+                    final EditText input = new EditText(MainActivity.this);
+                    input.setText(defaultValue == null ? "" : defaultValue);
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage(message).setView(input)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int w) {
+                                    result.confirm(input.getText().toString());
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d, int w) { result.cancel(); }
+                            })
+                            .setCancelable(false).show();
+                } catch (Exception e) {
+                    result.cancel();
                 }
                 return true;
             }

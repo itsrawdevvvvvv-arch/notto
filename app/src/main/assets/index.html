@@ -489,6 +489,52 @@ html.light .rbar{background:#e2ddd3}
 #clkthemes{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
 #clkthemes::-webkit-scrollbar{display:none}
 #clkthemes .chp{flex:none}
+/* sheets must sit above the full-screen sections (group, cover, board) */
+.scrim{z-index:21}
+.sheet{z-index:22}
+.pickbar{z-index:14}
+/* the group view sits under the editors it launches */
+.sc2.grpv{z-index:11}
+/* ---- multi-select ---- */
+.pickbar{position:absolute;left:12px;right:12px;top:calc(10px + var(--sat, env(safe-area-inset-top,0px)));z-index:8;display:flex;align-items:center;gap:6px;background:#161616;border:1px solid #2c2c2c;border-radius:24px;padding:8px 10px;box-shadow:0 12px 34px rgba(0,0,0,.45)}
+.pickbar[hidden]{display:none}
+.pickbar b{flex:1;font-size:13.5px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pickbar .rb{width:38px;height:38px;flex:none}
+.pickbar .rb.dgr{background:#3a1f22;color:#ff8b8b}
+html.light .pickbar{background:#fff;border-color:#e2ddd3}
+html.light .pickbar .rb.dgr{background:#ffe0e0;color:#c0392b}
+#app.pick .top,#app.pick .sbar,#app.pick .chips{opacity:.3;pointer-events:none}
+.card.picked{outline:3px solid #f6cf3d;outline-offset:-3px}
+.card.picked::after{content:'';position:absolute;bottom:8px;right:8px;width:22px;height:22px;border-radius:50%;background:#f6cf3d;box-shadow:0 2px 6px rgba(0,0,0,.4);z-index:4}
+/* ---- group card ---- */
+.card.grpc{display:flex;align-items:center;gap:14px;padding:14px;background:#1a1a1a;border:1px solid #2a2a2a;min-height:92px;overflow:hidden;color:#fff}
+.card.grpc .gthumb,.card.grpc .mos{width:62px;height:62px;border-radius:16px;flex:none;overflow:hidden;background:#111}
+.card.grpc .gthumb img{width:100%;height:100%;object-fit:cover}
+.card.grpc .mos{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
+.card.grpc .mos img{width:100%;height:100%;object-fit:cover}
+.card.grpc .mos .ph{background:#2a2a2a}
+.card.grpc .gmeta{min-width:0;flex:1}
+.card.grpc .gt{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card.grpc .gm{font-size:12px;color:#9a9a9a;margin-top:4px}
+html.light .card.grpc{background:#fff;border-color:#e2ddd3;color:#141414}
+html.light .card.grpc .gm{color:#6f6a61}
+html.light .card.grpc .mos .ph{background:#eee9e0}
+/* ---- group view ---- */
+.grphead{display:flex;align-items:center;gap:14px;padding:14px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:24px}
+.grphead .grpcov{width:72px;height:72px;border-radius:18px;flex:none;overflow:hidden;background:#111;display:grid;place-items:center;color:#555}
+.grphead .grpcov img{width:100%;height:100%;object-fit:cover}
+.grphead .grpcov svg{width:30px;height:30px}
+.grphead .grpmeta{min-width:0;flex:1}
+.grphead .gt{display:block;text-align:left;font-weight:700;font-size:19px;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grphead .gm{font-size:12px;color:#9a9a9a;margin-top:4px}
+html.light .grphead{background:#fff;border-color:#e2ddd3}
+html.light .grphead .grpcov{background:#eee9e0;color:#a9a49b}
+html.light .grphead .gm{color:#6f6a61}
+#grp .ib2{margin-top:4px}
+.grpnote{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#161616;border:1px solid #262626;border-radius:18px}
+.grpnote .gt2{flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grpnote .gm2{font-size:11px;color:#8a8a8a}
+html.light .grpnote{background:#fff;border-color:#e2ddd3}
 html.light .clk{--clkpanel:#ffffff;--clkline:#e2ddd3;--clkdim:#8a857c}
 .clockface{display:flex;align-items:center;justify-content:center;width:100%;position:relative;color:#fff;background:var(--clkpanel);border:1px solid var(--clkline);border-radius:26px;padding:.16em .24em;overflow:hidden;font-variant-numeric:tabular-nums;box-shadow:0 10px 30px rgba(0,0,0,.28)}
 html.light .clockface{color:#141414}
@@ -547,8 +593,9 @@ html.light .clockmeta #clkdate{color:#6f6a61}
 .alarmtime{font-family:'Space Mono',monospace;font-weight:700;font-size:min(16vh,96px);letter-spacing:-.03em}
 #alarmv .ib2{height:56px;border-radius:20px}
 /* ---- masonry home grid (fills the gaps) ---- */
-#grid.masonry{display:block;position:relative}
-#grid.masonry>.card{position:absolute;top:0;left:0;transition:top .38s var(--ease),left .38s var(--ease),opacity .2s var(--ease),transform .25s var(--ease)}
+.masonry{display:block;position:relative}
+.masonry>.card{position:absolute;top:0;left:0;transition:top .38s var(--ease),left .38s var(--ease),opacity .2s var(--ease),transform .25s var(--ease)}
+.mz{position:relative}
 html.light #set .chp.on{background:#141414;color:#fff}
 .sheet{max-height:74vh;overflow-y:auto;scrollbar-width:none}
 .sheet::-webkit-scrollbar{display:none}
@@ -584,7 +631,15 @@ html.light #set .chp.on{background:#141414;color:#fff}
  <section class="v list">
   <div class="scroll" id="sc">
    <div class="top"><div class="brand"><b></b>Notto</div><div class="hr"><button class="rb" id="searchb" aria-label="Search"><svg class="i"><use href="#i-search"/></svg></button><button class="rb" id="setb" aria-label="Settings"><svg class="i"><use href="#i-gear"/></svg></button><button class="rb" id="sortb" aria-label="Sort and filter"><svg class="i"><use href="#i-sort"/></svg></button></div></div>
-   <h1 class="big">My<br>Notes</h1>
+   <div class="pickbar" id="pickbar" hidden>
+  <button class="eb dk" id="pickx" aria-label="Cancel"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button>
+  <b id="pickn">0 selected</b>
+  <button class="rb" id="pickall" aria-label="Select all"><svg class="i"><use href="#i-check"/></svg></button>
+  <button class="rb" id="pickgroup" aria-label="Group selected"><svg class="i"><use href="#i-copy"/></svg></button>
+  <button class="rb" id="pickmore" aria-label="More options"><svg class="i"><use href="#i-grid"/></svg></button>
+  <button class="rb dgr" id="pickdel" aria-label="Delete selected"><svg class="i"><use href="#i-trash"/></svg></button>
+ </div>
+ <h1 class="big">My<br>Notes</h1>
    <div class="sbar" id="sbar"><input id="search" type="text" placeholder="Search notes" autocomplete="off" autocapitalize="off"><button id="searchx" aria-label="Clear"><svg class="i"><use href="#i-plus"/></svg></button></div>
    <div class="chips" id="chips"></div>
    <div id="grid"></div>
@@ -636,6 +691,15 @@ html.light #set .chp.on{background:#141414;color:#fff}
  <textarea id="ain" placeholder="Paste the AI's answer here"></textarea>
  <div class="rw"><button class="ib2" id="apaste">Paste answer</button><button class="ib2" id="azip">Import zip</button></div>
  <div id="aprev"></div></section>
+<section class="v sc2 grpv" id="grp">
+ <div class="cbar"><button class="eb dk" id="grpx" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><b>Group</b><button class="eb dk" id="grpmenu" aria-label="Group options"><svg class="i"><use href="#i-grid"/></svg></button></div>
+ <div class="grphead">
+  <div class="grpcov" id="grpcov"></div>
+  <div class="grpmeta"><button class="gt" id="grptitle" aria-label="Rename group">Group</button><div class="gm" id="grpcount">0 notes</div></div>
+ </div>
+ <div class="mz" id="ggrid"></div>
+ <button class="ib2" id="grpadd">Add notes to this group</button>
+</section>
 <section class="v sc2 clk" id="clk">
  <div class="cbar"><button class="eb dk" id="clkx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Clock</b><button class="eb dk" id="clkfull" aria-label="Fullscreen"><svg class="i"><use href="#i-expand"/></svg></button></div>
  <div class="ctabs" id="clktabs"><button class="on" data-ct="0">Clock</button><button data-ct="1">Timer</button><button data-ct="2">Alarm</button></div>
@@ -695,7 +759,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <button class="ib2" id="remtest">Send a test notification</button>
   <p class="hint">Notto will nudge you once a day to write something down.</p>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.6.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.7.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -727,11 +791,11 @@ const seed=[
  {id:3,type:'note',c:'cr',title:'Design Sprint Lecture',meta:'5 Notes',html:'<p><b>Design Sprint</b> is a way to quickly ideate, prototype, and validate a product idea in a week instead of waiting for months to launch a full-fledged product.</p><p><b>Design Sprint Phases:</b></p><p>Understand, define, sketch, decide, prototype, test.</p>',fav:0,t:now-3*H},
  {id:4,type:'note',c:'gr',title:'List of Books',html:'<p>Things I want to read this season.</p>',fav:0,t:now-26*H},
  {id:5,type:'note',c:'bl',title:'Image Moodboard',html:'<p>Warm light, soft grain, big type.</p>',fav:1,t:now-50*H}];
-let S={n:seed,f:'all',id:null,q:'',sort:'recent'};
+let S={n:seed,f:'all',id:null,q:'',sort:'recent',g:[]};
 try{const r=JSON.parse(localStorage.getItem(K));if(r&&r.length)S.n=r}catch(e){}
 const DB=new Promise(ok=>{try{const r=indexedDB.open('notto',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>ok(null)}catch(e){ok(null)}});
 const kv=(m,k,v)=>DB.then(d=>d?new Promise(ok=>{const t=d.transaction('kv',m==='get'?'readonly':'readwrite'),o=t.objectStore('kv'),r=m==='get'?o.get(k):o.put(v,k);r.onsuccess=()=>ok(r.result);r.onerror=()=>ok()}):null);
-let st;const save=()=>{clearTimeout(st);st=setTimeout(()=>{DB.then(d=>{if(d)kv('put','notes',S.n);else try{localStorage.setItem(K,JSON.stringify(S.n))}catch(e){}});pushWidget()},300)};
+let st;const save=()=>{clearTimeout(st);st=setTimeout(()=>{DB.then(d=>{if(d){kv('put','notes',S.n);kv('put','groups',S.g)}else try{localStorage.setItem(K,JSON.stringify(S.n));localStorage.setItem(K+'.g',JSON.stringify(S.g))}catch(e){}});pushWidget()},300)};
 let _wp='';
 function widgetPayload(){const td=S.n.find(n=>n.type==='todo'),bd=S.n.find(n=>n.type==='board');return JSON.stringify({count:S.n.length,todos:S.n.filter(n=>n.type==='todo').length,boards:S.n.filter(n=>n.type==='board').length,todo:td?{title:td.title||'Checklist',items:(td.items||[]).slice(0,5).map(x=>({t:(x.t||'').slice(0,60),d:x.d?1:0}))}:null,board:bd?{title:bd.title||'Moodboard',thumb:bd.pv||''}:null})}
 let _wtSrc='',_wtVal='';
@@ -749,13 +813,13 @@ async function pushWidget(){
  }catch(e){}
 }
 let mzT;
-function layoutMasonry(){
- const g=$('#grid');if(!g)return;
+function layoutMasonry(root){
+ const g=root||$('#grid');if(!g)return;
  const cards=[...g.querySelectorAll(':scope > .card')];
  if(!cards.length){g.classList.remove('masonry');g.style.height='';return}
  g.classList.add('masonry');
  const gap=12,W=g.clientWidth||1,colW=(W-gap)/2;
- const widths=cards.map(c=>c.classList.contains('cr')?W:colW);
+ const widths=cards.map(c=>(c.classList.contains('cr')||c.classList.contains('wide'))?W:colW);
  cards.forEach((c,i)=>{c.style.width=widths[i]+'px'});
  const heights=cards.map(c=>c.offsetHeight);
  const colH=[0,0];
@@ -765,7 +829,7 @@ function layoutMasonry(){
  });
  g.style.height=Math.max(0,Math.max(colH[0],colH[1])-gap)+'px';
 }
-addEventListener('resize',()=>{clearTimeout(mzT);mzT=setTimeout(layoutMasonry,140)});
+addEventListener('resize',()=>{clearTimeout(mzT);mzT=setTimeout(()=>{layoutMasonry($('#grid'));layoutMasonry($('#ggrid'))},140)});
 let sT;function softRender(){const g=$('#grid');if(!g)return render();g.classList.add('q');clearTimeout(sT);sT=setTimeout(()=>{render(false);requestAnimationFrame(()=>requestAnimationFrame(()=>g.classList.remove('q')))},120)};
 let ST={theme:'dark',bgc:'',pat:'dots',font:''};try{const _s=JSON.parse(localStorage.getItem('notto.set'));if(_s)Object.assign(ST,_s)}catch(e){}
 if(ST.bgv!==2){ST.bgc='';ST.bgv=2;try{localStorage.setItem('notto.set',JSON.stringify(ST))}catch(e){}}
@@ -796,10 +860,15 @@ function render(anim=true){
  else if(so==='az')L=L.slice().sort((a,b)=>(a.title||'').localeCompare(b.title||''));
  else if(so==='za')L=L.slice().sort((a,b)=>(b.title||'').localeCompare(a.title||''));
  else L=L.slice().sort((a,b)=>b.t-a.t);
- const g=$('#grid');g.innerHTML=L.map(card).join('')||`<p class="empty">${q?'No notes match \u201c'+esc(S.q.trim())+'\u201d':'Nothing here yet. Tap + to start a note.'}</p>`;
+ L=L.filter(n=>!n.gid);
+ const gs=(S.g||[]).filter(g=>!q||(g.title||'').toLowerCase().includes(q));
+ const g=$('#grid');
+ const body=L.map(card).join('');
+ g.innerHTML=gs.map(gcard).join('')+(body||(gs.length?'':`<p class="empty">${q?'No notes match \u201c'+esc(S.q.trim())+'\u201d':'Nothing here yet. Tap + to start a note.'}</p>`));
  if(!anim)$$('.card',g).forEach(c=>c.classList.remove('in'));
+ requestAnimationFrame(selRender);
  $('#chips').innerHTML=[['all','All'],['imp','Important'],['todo','To-do']].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-k="${k}">${l}${k==='all'?`<i>${S.n.length}</i>`:''}</button>`).join('');
- requestAnimationFrame(layoutMasonry);
+ requestAnimationFrame(()=>layoutMasonry());
 }
 $('#chips').onclick=e=>{const b=e.target.closest('.chip');if(b){S.f=b.dataset.k;softRender()}};
 $('#searchb').onclick=()=>{const b=$('#sbar'),on=!b.classList.contains('on');b.classList.toggle('on',on);if(on)setTimeout(()=>$('#search').focus(),120);else{S.q='';$('#search').value='';render(false)}};
@@ -807,19 +876,107 @@ $('#search').oninput=e=>{S.q=e.target.value;softRender()};
 $('#searchx').onclick=()=>{$('#search').value='';S.q='';render(false);$('#search').focus()};
 $('#grid').onclick=e=>{
  if(held){held=0;return}
- const c=e.target.closest('.card');if(!c)return;const n=S.n.find(x=>x.id==c.dataset.id),a=e.target.closest('[data-a]');
+ const c=e.target.closest('.card');if(!c)return;
+ if(c.dataset.gid){openGroup(+c.dataset.gid);return}
+ const n=S.n.find(x=>x.id==c.dataset.id),a=e.target.closest('[data-a]');
+ if(selOn){selToggle(n.id);return}
  if(a&&a.dataset.a==='fav'){n.fav=n.fav?0:1;a.classList.toggle('on',!!n.fav);a.classList.remove('pop');void a.offsetWidth;a.classList.add('pop');save();if(S.f==='imp')setTimeout(()=>render(false),350);return}
  if(a&&a.dataset.a==='ck'){const x=n.items[a.dataset.j];x.d=x.d?0:1;a.classList.toggle('on',!!x.d);a.parentNode.classList.toggle('d',!!x.d);save();return}
  openN(n.id);
 };
 /* hold menu */
 let hold,held=0,hid,hp;const gd=$('#grid');
+function gcard(g,i){
+ const ms=S.n.filter(n=>n.gid===g.id);
+ const cov=g.cv||g.cover;
+ let thumb;
+ if(cov)thumb=`<div class="gthumb"><img src="${cov}" alt=""></div>`;
+ else thumb=`<div class="mos">${[0,1,2,3].map(j=>{const m=ms[j];const im=m?(m.cv||m.cover||m.pv):null;return im?`<img src="${im}" alt="">`:'<span class="ph"></span>'}).join('')}</div>`;
+ return `<article class="card grpc wide in" style="--i:${Math.min(i,8)}" data-gid="${g.id}" aria-label="${esc(g.title||'Group')}">${thumb}<div class="gmeta"><div class="gt">${esc(g.title||'Group')}</div><div class="gm">${ms.length} note${ms.length===1?'':'s'}</div></div></article>`;
+}
+/* ---------- multi-select ---------- */
+let SEL=new Set(),selOn=false;
+function selRender(){
+ if(!app)return;
+ app.classList.toggle('pick',selOn);
+ const bar=$('#pickbar');if(bar)bar.hidden=!selOn;
+ if(selOn){
+  $('#pickn').textContent=SEL.size+(SEL.size===1?' selected':' selected');
+  $('#pickmore').hidden=SEL.size!==1;
+  $('#pickgroup').hidden=SEL.size<2;
+ }
+ $$('#grid .card').forEach(c=>{if(c.dataset.gid)return;c.classList.toggle('picked',selOn&&SEL.has(+c.dataset.id))});
+}
+function selEnter(id){selOn=true;SEL.clear();if(id)SEL.add(id);selRender()}
+function selExit(){selOn=false;SEL.clear();selRender()}
+function selToggle(id){if(SEL.has(id))SEL.delete(id);else SEL.add(id);if(!SEL.size){selExit();return}selRender()}
+$('#pickx').onclick=selExit;
+$('#pickall').onclick=()=>{S.n.filter(n=>!n.gid).forEach(n=>SEL.add(n.id));selRender()};
+$('#pickmore').onclick=()=>{const id=[...SEL][0];if(id)menu(id)};
+$('#pickdel').onclick=()=>{const ids=[...SEL];if(!ids.length)return;const gone=S.n.filter(n=>ids.indexOf(n.id)>=0);gone.forEach(n=>trashAdd(n));S.n=S.n.filter(n=>ids.indexOf(n.id)<0);save();selExit();render();toast(gone.length+' moved to Recycle bin')};
+$('#pickgroup').onclick=()=>{
+ const ids=[...SEL];if(ids.length<2)return;
+ const g={id:Date.now(),title:'New group',c:COL[S.g.length%3],t:Date.now()};
+ S.g.unshift(g);S.n.forEach(n=>{if(ids.indexOf(n.id)>=0)n.gid=g.id});
+ save();selExit();render();openGroup(g.id);toast('Group created');
+};
+/* ---------- group view ---------- */
+let gid=null;
+function openGroup(id){gid=id;const g=S.g.find(x=>x.id===id);if(!g){toast('Group not found');return}renderGroup();$('#grp').classList.add('on')}
+function renderGroup(){
+ const g=S.g.find(x=>x.id===gid);if(!g)return;
+ const ms=S.n.filter(n=>n.gid===gid).sort((a,b)=>b.t-a.t);
+ $('#grptitle').textContent=g.title||'Group';
+ $('#grpcount').textContent=ms.length+' note'+(ms.length===1?'':'s');
+ const cov=g.cv||g.cover;
+ $('#grpcov').innerHTML=cov?`<img src="${cov}" alt="">`:`<svg class="i"><use href="#i-board"/></svg>`;
+ const el=$('#ggrid');
+ el.innerHTML=ms.map(card).join('')||'<p class="empty">No notes in this group yet. Tap below to add some.</p>';
+ requestAnimationFrame(()=>layoutMasonry(el));
+}
+$('#grpx').onclick=()=>{$('#grp').classList.remove('on');gid=null;render()};
+$('#grptitle').onclick=()=>groupRename();
+$('#grpmenu').onclick=()=>{const g=S.g.find(x=>x.id===gid);if(!g)return;
+ $('#sheet').innerHTML=`<b>${esc(g.title||'Group')}</b>`
+  +`<button data-g="rename">${ic('pen')}Rename group</button>`
+  +`<button data-g="gcover">${ic('photo')}Cover from gallery</button>`
+  +`<button data-g="cov">${ic('pen')}Customize cover</button>`
+  +(g.cv?`<button data-g="rst">${ic('sketch')}Reset cover</button>`:'')
+  +`<button data-g="add">${ic('plus')}Add notes</button>`
+  +`<button data-g="del" class="dg">${ic('trash')}Delete group</button>`;
+ app.classList.add('mn')};
+$('#grpadd').onclick=()=>groupPicker();
+function groupPicker(){
+ const g=S.g.find(x=>x.id===gid);if(!g)return;
+ const cands=S.n.filter(n=>n.gid!==gid).sort((a,b)=>b.t-a.t);
+ if(!cands.length){toast('No other notes to add');return}
+ $('#sheet').innerHTML=`<b>Add notes</b>`+cands.map(n=>`<button data-add="${n.id}">${ic(n.type==='todo'?'list':n.type==='board'?'board':'note')}${esc(n.title||'Untitled')}</button>`).join('');
+ app.classList.add('mn');
+}
+function groupRename(){const g=S.g.find(x=>x.id===gid);if(!g)return;
+ $('#sheet').innerHTML=`<b>Rename group</b><label>Group name<input id="grpname" type="text" value="${esc(g.title||'')}" maxlength="40" autocomplete="off"></label><button data-g="saverename" class="ok">Save name</button>`;
+ app.classList.add('mn');
+ setTimeout(()=>{const i=$('#grpname');if(i){i.focus();i.select()}},200);
+}
 function menu(id){hid=id;const n=S.n.find(x=>x.id===id);$('#sheet').innerHTML=`<b>${esc(n.title||'Untitled')}</b><button data-m="fav">${ic('heart')}${n.fav?'Remove from Important':'Mark important'}</button><button data-m="gcover">${ic('photo')}Cover from gallery</button><button data-m="cov">${ic('pen')}Customize cover</button>${n.cv?`<button data-m="rst">${ic('sketch')}Reset cover</button>`:''}<button data-m="dup">${ic('copy')}Duplicate</button><button data-m="del" class="dg">${ic('trash')}Delete</button>`;app.classList.add('mn')}
-gd.addEventListener('pointerdown',e=>{const c=e.target.closest('.card');if(!c)return;held=0;hp=[e.clientX,e.clientY];hold=setTimeout(()=>{held=1;navigator.vibrate&&navigator.vibrate(12);menu(+c.dataset.id)},480)});
+gd.addEventListener('pointerdown',e=>{const c=e.target.closest('.card');if(!c)return;held=0;hp=[e.clientX,e.clientY];hold=setTimeout(()=>{held=1;navigator.vibrate&&navigator.vibrate(12);if(c.dataset.gid)openGroup(+c.dataset.gid);else selEnter(+c.dataset.id)},480)});
 gd.addEventListener('pointermove',e=>{if(hp&&Math.hypot(e.clientX-hp[0],e.clientY-hp[1])>8)clearTimeout(hold)});
 ['pointerup','pointercancel','pointerleave'].forEach(t=>gd.addEventListener(t,()=>clearTimeout(hold)));
 gd.addEventListener('contextmenu',e=>e.preventDefault());
 $('#sheet').onclick=e=>{
+ const ga=e.target.closest('[data-add]');
+ if(ga){app.classList.remove('mn');const g=S.g.find(x=>x.id===gid);const n=S.n.find(x=>x.id==ga.dataset.add);if(g&&n){n.gid=gid;save();renderGroup();toast('Added to group')}return}
+ const gm=e.target.closest('[data-g]');
+ if(gm){const act=gm.dataset.g;const g=S.g.find(x=>x.id===gid);if(!g)return;
+  if(act!=='saverename')app.classList.remove('mn');
+  if(act==='rename'){groupRename();return}
+  if(act==='saverename'){const v=$('#grpname').value.trim();if(!v){toast('Title cannot be empty');return}g.title=v;save();app.classList.remove('mn');renderGroup();render();toast('Renamed');return}
+  if(act==='gcover'){$('#gfile').click();window.__gcovTarget=g.id;return}
+  if(act==='cov'){coverOpen(g.id,'group');return}
+  if(act==='rst'){delete g.cv;delete g.cvd;save();renderGroup();render();toast('Cover reset');return}
+  if(act==='add'){groupPicker();return}
+  if(act==='del'){S.n.forEach(n=>{if(n.gid===gid)n.gid=undefined});S.g=S.g.filter(x=>x.id!==gid);save();gid=null;$('#grp').classList.remove('on');render();toast('Group deleted');return}
+  return}
  const ab=e.target.closest('[data-aud]');
  if(ab){app.classList.remove('mn');const a=window.__aud;if(!a)return;
   if(ab.dataset.aud==='del'){const host=a.closest('p')||a;const par=host.parentNode;host.remove();if(par&&par!==body&&!par.textContent.trim()&&!par.querySelector('img,audio'))par.remove();const n=cur();if(n){n.html=body.innerHTML;save()}toast('Recording deleted');return}
@@ -1089,7 +1246,8 @@ function ui(){const l=C.L,x=l[cs];
 const fload=()=>C.L.forEach(t=>{if(t.k!=='txt')return;const f=FN[t.f||0];document.fonts&&document.fonts.load(`${f[1]} 30px "${f[0]}"`).then(()=>dw())});
 const ld=(k,v)=>{const im=new Image();im.onload=()=>{IM[k]=im;dw()};im.src=v};
 function mig(o){if(o.L)return o;const L=[],imgs={};let id=1;if(o.img){imgs.m1=o.img.src;L.push({id:id++,k:'img',m:'m1',x:o.img.x,y:o.img.y,s:o.img.s,r:0,o:1,vis:1,lock:0})}(o.t||[]).forEach(t=>L.push({id:id++,k:'txt',t:t.t,x:t.x,y:t.y,s:t.s,r:t.r||0,c:t.c,f:t.f||0,o:1,vis:1,lock:0}));return{bg:o.bg,pat:o.pat||'none',imgs,nid:id,L}}
-function coverOpen(id){cid=id;const n=S.n.find(x=>x.id===id);C=n.cvd?mig(JSON.parse(JSON.stringify(n.cvd))):{bg:n.type==='todo'?'#ee7a4b':'#f5edc2',pat:'none',imgs:{},nid:2,L:[{id:1,k:'txt',t:(n.title||'Untitled').slice(0,18),x:170,y:70,s:26,r:0,c:'#121212',f:0,o:1,vis:1,lock:0}]};
+let ckind='note';
+function coverOpen(id,kind){ckind=kind||'note';cid=id;const n=ckind==='group'?S.g.find(x=>x.id===id):S.n.find(x=>x.id===id);C=n.cvd?mig(JSON.parse(JSON.stringify(n.cvd))):{bg:n.type==='todo'?'#ee7a4b':'#f5edc2',pat:'none',imgs:{},nid:2,L:[{id:1,k:'txt',t:(n.title||'Untitled').slice(0,18),x:170,y:70,s:26,r:0,c:'#121212',f:0,o:1,vis:1,lock:0}]};
  cs=-2;HS=[snap()];hi=0;IM={};Object.entries(C.imgs).forEach(([k,v])=>ld(k,v));ctab(1);ui();dw();fload();ub();$('#cov').classList.add('on');fitC();requestAnimationFrame(fitC)}
 function fitC(){const b=$('.cw'),w=Math.min(b.clientWidth,b.clientHeight*340/380);cc.style.width=w+'px';cc.style.height=(w*380/340)+'px'}
 addEventListener('resize',fitC);
@@ -1123,7 +1281,7 @@ $('#cup').onclick=()=>$('#cfile').click();
 $('#cfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const r=await shrink(f,800),m='m'+C.nid;C.imgs[m]=r.d;IM[m]=r.im;C.L.push({id:C.nid++,k:'img',m,x:170,y:190,s:.8,r:0,o:1,vis:1,lock:0});cs=C.L.length-1;push();ctab(1);ui();dw()}catch(x){toast(x.message)}};
 $('#cu').onclick=()=>{if(hi>0){hi--;rs()}};$('#cr').onclick=()=>{if(hi<HS.length-1){hi++;rs()}};
 $('#cx').onclick=()=>$('#cov').classList.remove('on');
-$('#csave').onclick=()=>{const keep={};C.L.forEach(l=>{if(l.k==='img')keep[l.m]=C.imgs[l.m]});cs=-1;dw(1);const n=S.n.find(x=>x.id===cid);n.cv=cc.toDataURL('image/jpeg',.85);n.car=340/380;n.cvd={bg:C.bg,pat:C.pat,nid:C.nid,L:C.L,imgs:keep};n.t=Date.now();save();$('#cov').classList.remove('on');render();toast('Cover saved')};
+$('#csave').onclick=()=>{const keep={};C.L.forEach(l=>{if(l.k==='img')keep[l.m]=C.imgs[l.m]});cs=-1;dw(1);const n=ckind==='group'?S.g.find(x=>x.id===cid):S.n.find(x=>x.id===cid);n.cv=cc.toDataURL('image/jpeg',.85);n.car=340/380;n.cvd={bg:C.bg,pat:C.pat,nid:C.nid,L:C.L,imgs:keep};n.t=Date.now();save();$('#cov').classList.remove('on');render();if(ckind==='group'&&gid===cid)renderGroup();toast('Cover saved')};
 /* export */
 const loadI=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src});
 const dl=async(b,name)=>{const f=new File([b],name,{type:b.type});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e.name==='AbortError')return}
@@ -1381,8 +1539,11 @@ $('#trashb').onclick=()=>{$('#set').classList.remove('on');$('#trashv').classLis
 $('#trashx').onclick=()=>$('#trashv').classList.remove('on');
 $('#trashclear').onclick=()=>{if(!TR.length)return;if(!confirm('Permanently delete everything in the recycle bin?'))return;TR=[];trashSave();renderTrash();toast('Recycle bin emptied')};
 $('#trashlist').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const i=+b.closest('.lr2').dataset.i;const t=TR[i];if(!t)return;if(b.dataset.t==='res'){TR.splice(i,1);trashSave();S.n.unshift(t.n);save();render();renderTrash();toast('Restored')}else{TR.splice(i,1);trashSave();renderTrash();toast('Deleted')}};
-$('#gfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const r=await shrink(f,1000);const n=S.n.find(x=>x.id===hid);if(!n)return;delete n.cv;delete n.cvd;n.cover=r.d;n.car=r.im.width/r.im.height;n.type='img';n.c='ye';n.t=Date.now();save();render();toast('Cover updated')}catch(x){toast(x.message||'Could not use that image')}};
+$('#gfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const r=await shrink(f,1000);
+ if(window.__gcovTarget!=null){const g=S.g.find(x=>x.id===window.__gcovTarget);window.__gcovTarget=null;if(!g)return;g.cover=r.d;delete g.cv;g.car=r.im.width/r.im.height;g.t=Date.now();save();render();if(gid===g.id)renderGroup();toast('Group cover updated');return}
+ const n=S.n.find(x=>x.id===hid);if(!n)return;n.cover=r.d;delete n.cv;n.car=r.im.width/r.im.height;n.type='img';n.c='ye';n.t=Date.now();save();render();toast('Cover updated')}catch(x){toast(x.message||'Could not use that image')}};
 (async()=>{let r=await kv('get','notes');if(!r){try{r=JSON.parse(localStorage.getItem(K))}catch(e){}}if(r&&r.length)S.n=r;
+ const gg=await kv('get','groups');if(gg&&gg.length)S.g=gg;else{try{const s2=JSON.parse(localStorage.getItem(K+'.g'));if(s2&&s2.length)S.g=s2}catch(e){}}
  const t=await kv('get','trash');if(t&&t.length){const cut=Date.now()-2592e6;TR=t.filter(x=>x&&x.n&&(x.at||0)>cut)}
  await loadCF();applyFont();applyTheme();applyBg();render();
  const _sp=$('#splash');

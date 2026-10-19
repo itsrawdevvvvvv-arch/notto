@@ -1,0 +1,10 @@
+Notto 1.7.0
+
+New
+• Multi-select on the home screen — long-press a note, tap others, Select all
+• Group selected notes, or open a group and add notes to it
+• Each group has its own title (tap to rename) and its own cover — from your
+  gallery or built in the full cover editor, just like a note
+
+Fixed
+• Empty recycle bin now actually works (confirm dialogs were ignored)
