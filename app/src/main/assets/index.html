@@ -490,9 +490,11 @@ html.light .rbar{background:#e2ddd3}
 #clkthemes::-webkit-scrollbar{display:none}
 #clkthemes .chp{flex:none}
 /* sheets must sit above the full-screen sections (group, cover, board) */
-.scrim{z-index:21}
-.sheet{z-index:22}
-.pickbar{z-index:14}
+.scrim{z-index:9}
+.dock{z-index:10}
+.panel{z-index:11}
+.sheet{z-index:14}
+.pickbar{z-index:13}
 /* the group view sits under the editors it launches */
 .sc2.grpv{z-index:11}
 /* ---- multi-select ---- */
@@ -519,6 +521,13 @@ html.light .pickbar .rb.dgr{background:#ffe0e0;color:#c0392b}
 html.light .card.grpc{background:#fff;border-color:#e2ddd3;color:#141414}
 html.light .card.grpc .gm{color:#6f6a61}
 html.light .card.grpc .mos .ph{background:#eee9e0}
+/* ---- themed text fields ---- */
+.sc2 input[type=text],.sheet input[type=text]{width:100%;box-sizing:border-box;background:#0f0f0f;border:1px solid #2c2c2c;border-radius:14px;padding:13px 14px;color:#fff;font:inherit;font-size:15px;outline:none;-webkit-appearance:none;appearance:none}
+.sc2 input[type=text]:focus,.sheet input[type=text]:focus{border-color:#f6cf3d}
+.sc2 input[type=text]::placeholder{color:#6f6f6f}
+html.light .sc2 input[type=text],html.light .sheet input[type=text]{background:#fff;border-color:#e2ddd3;color:#141414}
+label.stack{display:flex;flex-direction:column;gap:9px;align-items:stretch;font-size:13px;font-weight:600;color:#9a9a9a}
+html.light label.stack{color:#6f6a61}
 /* ---- group view ---- */
 .grphead{display:flex;align-items:center;gap:14px;padding:14px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:24px}
 .grphead .grpcov{width:72px;height:72px;border-radius:18px;flex:none;overflow:hidden;background:#111;display:grid;place-items:center;color:#555}
@@ -752,6 +761,8 @@ html.light #set .chp.on{background:#141414;color:#fff}
  <div class="grp"><h3>Data</h3>
   <div class="rw"><button class="ib2" id="bkp">Backup</button><button class="ib2" id="rst">Restore</button></div>
   <button class="ib2" id="trashb">Recycle bin</button>
+  <button class="ib2" id="fmtcopy">Copy restore format</button>
+  <p class="hint">Restore accepts a Notto backup (.json) or a plain text / markdown file (.txt, .md) — each paragraph becomes a note. Tap <b>Copy restore format</b> to copy the exact JSON shape, so you can convert notes from any other app.</p>
  </div>
  <div class="grp"><h3>Reminders</h3>
   <label class="swrow">Daily reminder<span class="tgl"><input type="checkbox" id="remon"><i></i></span></label>
@@ -759,7 +770,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <button class="ib2" id="remtest">Send a test notification</button>
   <p class="hint">Notto will nudge you once a day to write something down.</p>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.7.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.7.1</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -772,7 +783,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
  <div class="btools" id="btools"><button data-t="select" class="on" aria-label="Select"><svg class="i"><use href="#i-cursor"/></svg></button><button data-t="img" aria-label="Image"><svg class="i"><use href="#i-photo"/></svg></button><button data-t="txt" aria-label="Text">Aa</button><button data-t="stk" aria-label="Stickers"><svg class="i"><use href="#i-star"/></svg></button><button data-t="draw" aria-label="Draw"><svg class="i"><use href="#i-pen"/></svg></button><button data-t="link" aria-label="Connect"><svg class="i"><use href="#i-link"/></svg></button></div>
 </section>
  <input type="file" id="bfile" accept="image/*" multiple hidden>
- <input type="file" id="cfile" accept="image/*" hidden><input type="file" id="gfile" accept="image/*" hidden><input type="file" id="bkpfile" accept=".json,application/json" hidden><input type="file" id="fontfile" accept=".ttf,.otf,.woff,.woff2" hidden><input type="file" id="zfile" accept=".zip,application/zip" hidden>
+ <input type="file" id="cfile" accept="image/*" hidden><input type="file" id="gfile" accept="image/*" hidden><input type="file" id="bkpfile" accept=".json,.txt,.md,application/json,text/plain,text/markdown" hidden><input type="file" id="fontfile" accept=".ttf,.otf,.woff,.woff2" hidden><input type="file" id="zfile" accept=".zip,application/zip" hidden>
  <div class="toast" id="toast"></div>
  <input type="file" id="file" accept="image/*" hidden>
 </div>
@@ -954,7 +965,7 @@ function groupPicker(){
  app.classList.add('mn');
 }
 function groupRename(){const g=S.g.find(x=>x.id===gid);if(!g)return;
- $('#sheet').innerHTML=`<b>Rename group</b><label>Group name<input id="grpname" type="text" value="${esc(g.title||'')}" maxlength="40" autocomplete="off"></label><button data-g="saverename" class="ok">Save name</button>`;
+ $('#sheet').innerHTML=`<b>Rename group</b><label class="stack">Group name<input id="grpname" type="text" value="${esc(g.title||'')}" maxlength="40" autocomplete="off" spellcheck="false"></label><button data-g="saverename" class="ok">Save name</button>`;
  app.classList.add('mn');
  setTimeout(()=>{const i=$('#grpname');if(i){i.focus();i.select()}},200);
 }
@@ -1176,6 +1187,52 @@ const rec=[];
 function drawRec(){$('#recent').innerHTML=rec.length?rec.map((t,i)=>`<button data-r="${i}">${esc(t.slice(0,60))}</button>`).join(''):'<p>Text you copy in Notto shows up here.</p>'}
 function addRec(t){t=(t||'').trim();if(!t)return;const i=rec.indexOf(t);if(i>=0)rec.splice(i,1);rec.unshift(t);rec.length=Math.min(rec.length,8);drawRec()}
 function sysClip(){try{if(window.NottoBridge&&NottoBridge.getClipboard)return NottoBridge.getClipboard()||''}catch(e){}return ''}
+function copyText(t){
+ try{if(window.NottoBridge&&NottoBridge.setClipboard){NottoBridge.setClipboard(t);return true}}catch(e){}
+ try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t);return true}}catch(e){}
+ try{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();return true}catch(e){}
+ return false;
+}
+const RESTORE_SPEC=[
+'NOTTO - RESTORE FORMAT',
+'',
+'Notto can restore two kinds of file.',
+'',
+'1) A Notto backup (.json), made by Settings > Backup.',
+'   Top level:',
+'   {',
+'     "app": "notto",',
+'     "v": 1,',
+'     "notes": [ ...note objects... ],',
+'     "trash": [ ...note objects... ]   // optional',
+'   }',
+'',
+'   A note object:',
+'   {',
+'     "id": 1700000000000,          // any unique number',
+'     "type": "note",               // "note" | "todo" | "img" | "board"',
+'     "title": "Shopping list",',
+'     "html": "<p>Milk</p>",        // body as simple HTML (notes only)',
+'     "items": [ { "t": "Milk", "d": 0 } ],   // checklists only; d:1 = ticked',
+'     "fav": 0,                     // 1 = pinned to Important',
+'     "t": 1700000000000            // last modified, milliseconds since 1970',
+'   }',
+'',
+'   Optional extras on a note:',
+'     "cover": "data:image/jpeg;base64,..."   // card cover photo',
+'     "cv":    "data:image/jpeg;base64,..."   // rendered cover from the cover editor',
+'     "gid":   1700000000000                  // id of the group it belongs to',
+'',
+'2) A plain text or markdown file (.txt / .md).',
+'   Each blank-line-separated paragraph becomes one note;',
+'   the first line of the paragraph becomes its title.',
+'',
+'To bring notes in from another app: export them there, then reshape',
+'the export to match format 1 (or just save them as a .txt file and use',
+'format 2). You can paste this whole description into any AI assistant',
+'and ask it to convert your export into the JSON above.'
+].join('\n');
+$('#fmtcopy').onclick=()=>{toast(copyText(RESTORE_SPEC)?'Restore format copied':'Could not copy')};
 async function syncClip(){let t=sysClip();if(!t){try{t=await navigator.clipboard.readText()}catch(_){}}if(t&&t.trim())addRec(t)}
 let kbDictating=false;
 function kbMic(){kbDictating=true;if(window.NottoBridge&&NottoBridge.startSpeech){try{NottoBridge.startSpeech()}catch(e){toast('Dictation needs the app')}}else toast('Dictation needs the app')}
@@ -1532,7 +1589,28 @@ $('#fontimp').onclick=()=>$('#fontfile').click();
 $('#fontfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(f)});const name=(f.name.replace(/\.[^.]+$/,'')||'Custom').slice(0,30);await addFont(name,d);CF.push({name,d});await kv('put','fonts',CF);syncSet();toast('Font added: '+name)}catch(x){toast('Could not add that font')}};
 $('#bkp').onclick=async()=>{const data={app:'notto',v:1,at:Date.now(),notes:S.n,trash:TR.map(t=>t.n)};await dl(new Blob([JSON.stringify(data)],{type:'application/json'}),'notto-backup-'+new Date().toISOString().slice(0,10)+'.json')};
 $('#rst').onclick=()=>$('#bkpfile').click();
-$('#bkpfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const j=JSON.parse(await f.text());const arr=Array.isArray(j)?j:j.notes;if(!Array.isArray(arr))throw Error('bad');S.n=arr;if(Array.isArray(j.trash))TR=j.trash.map(n=>({n,at:Date.now()}));save();trashSave();render();toast('Backup restored')}catch(x){toast('Could not restore that file')}};
+$('#bkpfile').onchange=async e=>{
+ const f=e.target.files[0];e.target.value='';if(!f)return;
+ try{
+  const raw=await f.text();const name=(f.name||'').toLowerCase();
+  if(name.endsWith('.json')||raw.trim().charAt(0)==='{'){
+   const j=JSON.parse(raw);const arr=Array.isArray(j)?j:j.notes;
+   if(!Array.isArray(arr))throw Error('bad');
+   S.n=arr;if(Array.isArray(j.trash))TR=j.trash.map(n=>({n,at:Date.now()}));
+   save();trashSave();render();toast('Backup restored');return;
+  }
+  const parts=raw.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+  if(!parts.length)throw Error('empty');
+  const now=Date.now();
+  parts.forEach((p,i)=>{
+   const lines=p.split('\n');
+   const title=(lines[0]||'Imported note').replace(/^#+\s*/,'').slice(0,90);
+   const rest=lines.slice(1).join('\n').trim();
+   S.n.unshift({id:now+i,type:'note',c:COL[i%3],title,html:rest?('<p>'+esc(rest).replace(/\n/g,'<br>')+'</p>'):'',fav:0,t:now+i});
+  });
+  save();render();toast(parts.length+' note'+(parts.length===1?'':'s')+' imported');
+ }catch(x){toast('Could not restore that file')}
+};
 function trashAdd(n){TR.unshift({n:JSON.parse(JSON.stringify(n)),at:Date.now()});if(TR.length>100)TR.length=100;trashSave()}
 function renderTrash(){const el=$('#trashlist');el.innerHTML=TR.length?TR.map((t,i)=>`<div class="lr2" data-i="${i}"><span class="clip k-txt">${esc(t.n.title||'Untitled')}</span><button data-t="res" aria-label="Restore"><svg class="i"><use href="#i-undo"/></svg></button><button data-t="gone" aria-label="Delete forever"><svg class="i"><use href="#i-trash"/></svg></button></div>`).join(''):'<p class="hint" style="padding:22px 6px">Recycle bin is empty.</p>'}
 $('#trashb').onclick=()=>{$('#set').classList.remove('on');$('#trashv').classList.add('on');renderTrash()};

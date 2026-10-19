@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-10-19
+
+### Fixed
+- **The + menu works again.** Raising the sheet layer had accidentally put the dimming overlay *above* the + dock, so opening it dimmed the screen and swallowed every tap. The layering is corrected: the dock and its panel sit above the scrim, and the dock correctly hides behind full-screen panels (Settings, Clock, a group).
+- **The group rename field no longer looks foreign.** Text fields are now styled to match the app — dark rounded field, accent focus ring — instead of the raw white browser box.
+- **Restore now accepts plain text**, so you can bring notes in from almost any app: a `.txt` or `.md` file imports with each blank-line-separated paragraph becoming a note (first line as its title), alongside the existing `.json` backup.
+- The file picker now offers **all** the accepted types (`.json`, `.txt`, `.md`) instead of filtering down to just one.
+
+### Added
+- **Copy restore format** in Settings → Data. It copies a complete description of the backup/restore JSON shape straight to the clipboard (no dialog in the app) — paste it into any AI assistant to convert an export from another notes app.
+
 ## [1.7.0] - 2026-10-19
 
 ### Added
@@ -134,7 +145,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.1
 [1.7.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.0
 [1.6.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.6.0
 [1.5.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.5.0

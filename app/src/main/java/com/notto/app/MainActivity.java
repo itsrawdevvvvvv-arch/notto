@@ -157,17 +157,39 @@ public class MainActivity extends Activity {
                 try {
                     Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                     i.addCategory(Intent.CATEGORY_OPENABLE);
-                    String type = "*/*";
+                    java.util.ArrayList<String> mimes = new java.util.ArrayList<>();
                     String[] accept = params.getAcceptTypes();
                     if (accept != null) {
                         for (String a : accept) {
-                            if (a != null && a.indexOf('/') > 0) {
-                                type = a;
-                                break;
+                            if (a == null || a.isEmpty()) {
+                                continue;
+                            }
+                            if (a.indexOf('/') > 0) {
+                                if (!mimes.contains(a)) {
+                                    mimes.add(a);
+                                }
+                            } else {
+                                String ext = a.startsWith(".")
+                                        ? a.substring(1).toLowerCase() : a.toLowerCase();
+                                String m = null;
+                                if (ext.equals("json")) m = "application/json";
+                                else if (ext.equals("txt")) m = "text/plain";
+                                else if (ext.equals("md")) m = "text/markdown";
+                                else if (ext.equals("csv")) m = "text/csv";
+                                if (m != null && !mimes.contains(m)) {
+                                    mimes.add(m);
+                                }
                             }
                         }
                     }
-                    i.setType(type);
+                    if (mimes.isEmpty()) {
+                        i.setType("*/*");
+                    } else if (mimes.size() == 1) {
+                        i.setType(mimes.get(0));
+                    } else {
+                        i.setType("*/*");
+                        i.putExtra(Intent.EXTRA_MIME_TYPES, mimes.toArray(new String[0]));
+                    }
                     if (params.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE) {
                         i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                     }
@@ -730,6 +752,24 @@ public class MainActivity extends Activity {
                     ReminderReceiver.post(MainActivity.this, "Notto",
                             "Reminders are working. This is a test.");
                     toast("Test notification sent");
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void setClipboard(final String text) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        ClipboardManager cm =
+                                (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (cm != null) {
+                            cm.setPrimaryClip(ClipData.newPlainText("Notto",
+                                    text == null ? "" : text));
+                        }
+                    } catch (Exception ignored) {
+                    }
                 }
             });
         }

@@ -1,0 +1,12 @@
+Notto 1.7.1
+
+Fixed
+• The + menu works again (a layering bug dimmed the screen and blocked taps)
+• The group rename field is now styled like the rest of the app
+• The dock no longer floats over Settings, Clock or a group
+
+Improved
+• Restore now also accepts plain text / markdown (.txt, .md) — each paragraph
+  becomes a note, so you can import from almost any notes app
+• The file picker offers .json, .txt and .md together
+• New "Copy restore format" button copies the backup format to the clipboard
