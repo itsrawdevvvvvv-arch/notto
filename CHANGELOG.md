@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-10-20
+
+### Added
+- **Calendar** — a new entry in the **+** menu. A month view in the app's own style: tap any day to mark it done (the day fills and a line is drawn through it), tap again to unmark. The header shows how many days you've marked, with a progress bar that fills as you go. Arrows move between months, and the badge button jumps back to today. Everything animates on the compositor (transform/opacity only), so there is no layout jitter. Marks are saved on the device.
+
+### Fixed
+- **Calendar, Clock and Group now follow the light theme.** They were hardcoded dark, so in light mode they stayed black while the rest of the app went light. Their contents were already theme-aware — only the screen background was wrong. Clock chips and tabs got light variants too.
+
+## [1.7.3] - 2026-10-19
+
+### Fixed
+- **Closing a note is smooth now.** Two separate causes were behind the jitter: (1) every time the home grid was rebuilt its cards were created with no position and then moved into place, so they visibly flew in from the top-left corner and overlapped on the way — a freshly built grid is now laid out in the same frame it is created, with transitions off for that first pass; (2) the whole grid was rebuilt 60 ms after the close, in the middle of the editor's slide-away animation — the rebuild now waits for the animation to finish and **is skipped entirely if the note wasn't changed**.
+
+### Changed
+- Cards use CSS layout containment, which cuts the cost of re-laying out the grid.
+
 ## [1.7.2] - 2026-10-19
 
 ### Fixed
@@ -150,7 +166,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.7.2...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.8.0
+[1.7.3]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.3
 [1.7.2]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.2
 [1.7.1]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.1
 [1.7.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.0

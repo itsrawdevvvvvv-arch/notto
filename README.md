@@ -42,6 +42,7 @@ Notto is a tiny, no-nonsense note-taking app for Android. Write notes, build che
 - **AI import** — copy a ready-made prompt into any AI tool, paste the answer back and Notto formats it for you.
 - **Export & share** — save any note as **PNG**, **PDF** or **TXT**.
 - **Search & organise** — instant search, sort by newest/oldest/title, filter by type, and pin important notes.
+- **Calendar** — a goal calendar in the + menu: tap a day to mark it done, with a monthly progress bar.
 - **Multi-select & groups** — long-press to select several notes at once, delete them in one go, or turn them into a group with its own title and cover.
 - **Recycle bin** — restore a note you deleted by mistake.
 - **Backup & restore** — export every note to one file, and import it back.
