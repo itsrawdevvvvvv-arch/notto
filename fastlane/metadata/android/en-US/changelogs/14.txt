@@ -1,0 +1,10 @@
+Notto 1.9.0
+
+New
+• Text-size slider in the keyboard's Format tab — any size from 12 to 34,
+  instead of just 14/16/18. Saved per note.
+• Text case changer — ABC (UPPERCASE), abc (lowercase), Abc (Title Case),
+  Abc. (Sentence case). Changes just your selection, or the whole note.
+
+Fixed
+• The slider now drags smoothly and the keyboard stays open while you use it.

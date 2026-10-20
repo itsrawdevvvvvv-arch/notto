@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-10-20
+
+### Added
+- **Text-size slider.** The 14 / 16 / 18 buttons in the keyboard's **Format** tab are replaced by a real slider (12–34) with a live number, so you can pick any size instead of three. The size is saved per note.
+- **Text case changer.** A new row in the Format tab: **ABC** (UPPERCASE), **abc** (lowercase), **Abc** (Title Case) and **Abc.** (Sentence case). If you have text selected it changes just the selection; otherwise it changes the whole note. Sentence case tracks sentence boundaries across the whole text, so it doesn't wrongly capitalise mid-sentence.
+
+### Fixed
+- The slider works with the app's keyboard: the keyboard swallows pointer events to keep the editor focused, which also blocked the slider. It now handles its own pointer drag, so it slides smoothly *and* the keyboard stays open.
+
 ## [1.8.0] - 2026-10-20
 
 ### Added
@@ -166,7 +175,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundled webfonts for full offline use.
 - Signed release APK and automated GitHub Actions release pipeline.
 
-[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/itsrawdevvvvvv-arch/notto/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.9.0
 [1.8.0]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.8.0
 [1.7.3]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.3
 [1.7.2]: https://github.com/itsrawdevvvvvv-arch/notto/releases/tag/v1.7.2

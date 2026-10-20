@@ -32,8 +32,8 @@ KS="${NOTTO_KEYSTORE:-$ROOT/notto-release.jks}"
 KS_PASS="${NOTTO_KS_PASS:-}"
 KS_ALIAS="${NOTTO_KEY_ALIAS:-notto}"
 
-VERSION_CODE=13
-VERSION_NAME="1.8.0"
+VERSION_CODE=14
+VERSION_NAME="1.9.0"
 PKG="com.notto.app"
 
 rm -rf "$BUILD"

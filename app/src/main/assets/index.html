@@ -305,6 +305,23 @@ canvas{display:block;width:100%;height:200px;border-radius:22px;background:rgba(
 .fb{width:46px;height:46px;border-radius:15px;background:#232323;display:grid;place-items:center;font-weight:700;font-size:15px;flex:none;transition:background .2s,transform .2s var(--ease)}
 .fb:active{transform:scale(.9)}.fb.on{background:#fff;color:#000}
 .hl{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--hl)}.fb.on .hl{background:var(--hl)}
+#fmt{height:262px}
+.fsrow{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:0 12px;height:48px;background:#1a1a1a;border-radius:18px}
+.fsrow .fslbl{font-size:13px;font-weight:700;color:#8a8a8a;letter-spacing:.04em}
+.fsrow .fsval{min-width:26px;text-align:right;font-size:14px;font-weight:700;color:#f6cf3d;font-variant-numeric:tabular-nums}
+.fsrow input[type=range]{flex:1;min-width:0;-webkit-appearance:none;appearance:none;height:26px;border-radius:3px;background:linear-gradient(#333,#333) center/100% 6px no-repeat;outline:none;margin:0;touch-action:none}
+.fsrow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:#f6cf3d;border:0;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.fsrow input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#f6cf3d;border:0;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.caserow{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.caserow button{height:46px;border-radius:16px;background:#232323;color:#e6e6e6;font-weight:700;font-size:13px;letter-spacing:.02em;transition:background .15s,transform .15s var(--ease)}
+.caserow button:active{background:#5a5a5a;transform:scale(.94)}
+html.light .fsrow{background:#efece6}
+html.light .fsrow .fslbl{color:#8a857c}
+html.light .fsrow .fsval{color:#b8860b}
+html.light .fsrow input[type=range]{background:#d8d2c8}
+html.light .fsrow input[type=range]::-webkit-slider-thumb{background:#141414;box-shadow:0 2px 8px rgba(0,0,0,.28)}
+html.light .caserow button{background:#efece6;color:#4a4a4a}
+html.light .caserow button:active{background:#d8d2c8}
 .sz{margin-left:auto;display:flex;gap:4px;font-weight:600;font-size:14px;color:#777}
 .sz button{width:40px;height:40px;border-radius:14px}.sz .on{background:#1f1f1f;color:var(--hl);font-size:16px}
 .sel{position:fixed;left:0;top:0;z-index:20;pointer-events:none;will-change:transform}
@@ -715,7 +732,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   
   <div class="kbd" id="kbd"><button class="kbhide" id="kbhide" aria-label="Hide keyboard"><svg class="i"><use href="#i-down"/></svg></button><div class="tabs" id="tabs"><button class="on" data-t="0">Keys</button><button data-t="1">Format</button><button data-t="2">Insert</button><button data-t="3">Clipboard</button><button data-t="4">Stickers</button></div>
   <div class="pane on" data-p="0"><div id="keys"></div></div>
-  <div class="pane pg" data-p="1" id="fmt"><button class="fb" data-f="bold"><b>B</b></button><button class="fb" data-f="italic"><i>I</i></button><button class="fb" data-f="underline"><u>U</u></button><button class="fb" data-f="hl" aria-label="Highlight"><span class="hl"></span></button><button class="fb" data-f="ul" aria-label="Bullets"><svg class="i"><use href="#i-bul"/></svg></button><button class="fb" data-f="ol">1.</button><button class="fb" data-f="date">Date</button><button class="fb" data-f="hr">Line</button><div class="sz" id="sz"><button data-s="14">14</button><button data-s="16" class="on">16</button><button data-s="18">18</button></div></div>
+  <div class="pane pg" data-p="1" id="fmt"><button class="fb" data-f="bold"><b>B</b></button><button class="fb" data-f="italic"><i>I</i></button><button class="fb" data-f="underline"><u>U</u></button><button class="fb" data-f="hl" aria-label="Highlight"><span class="hl"></span></button><button class="fb" data-f="ul" aria-label="Bullets"><svg class="i"><use href="#i-bul"/></svg></button><button class="fb" data-f="ol">1.</button><button class="fb" data-f="date">Date</button><button class="fb" data-f="hr">Line</button><div class="fsrow"><span class="fslbl">A</span><input type="range" id="fsr" min="12" max="34" step="1" value="16" aria-label="Text size"><span class="fsval" id="fsv">16</span></div><div class="caserow" id="caserow"><button data-c="upper" aria-label="UPPERCASE">ABC</button><button data-c="lower" aria-label="lowercase">abc</button><button data-c="title" aria-label="Title Case">Abc</button><button data-c="sentence" aria-label="Sentence case">Abc.</button></div></div>
   <div class="pane pg" data-p="2"><button class="ib" id="tcam"><svg class="i"><use href="#i-cam"/></svg>Photo</button><button class="ib" id="tpen"><svg class="i"><use href="#i-pen"/></svg>Sketch</button><button class="ib" id="tlist"><svg class="i"><use href="#i-list"/></svg>List</button><button class="ib" data-f="hr"><svg class="i"><use href="#i-sketch"/></svg>Divider</button></div>
   <div class="pane" data-p="3"><div class="cb"><button class="ib" data-f="paste"><svg class="i"><use href="#i-paste"/></svg>Paste</button><button class="ib" data-f="all"><svg class="i"><use href="#i-note"/></svg>Select all</button></div><div id="recent"></div></div><div class="pane pg" data-p="4" id="stp"></div></div>
  </section>
@@ -821,7 +838,7 @@ html.light #set .chp.on{background:#141414;color:#fff}
   <button class="ib2" id="remtest">Send a test notification</button>
   <p class="hint">Notto will nudge you once a day to write something down.</p>
  </div>
- <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.8.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
+ <div class="grp"><h3>About</h3><p class="hint">Notto <span id="ver">1.9.0</span> &mdash; fast, private, offline notes. Everything stays on this device.</p></div>
 </section>
 <section class="v sc2" id="trashv">
  <div class="cbar"><button class="eb dk" id="trashx" aria-label="Close"><svg class="i" style="transform:rotate(45deg)"><use href="#i-plus"/></svg></button><b>Recycle bin</b><button class="sv" id="trashclear">Empty</button></div>
@@ -1174,7 +1191,7 @@ function openN(id,pen){
  S.id=id;const n=cur(),td=n.type==='todo';
  title.textContent=n.title;body.hidden=td;tl.hidden=!td;$('#tap').hidden=td;
  if(td)rows();else body.innerHTML=n.html||'';
- body.style.setProperty('--fs',((n.fs||16)-1)+'px');$$('#sz button').forEach(b=>b.classList.toggle('on',+b.dataset.s===(n.fs||16)));
+ const _fsv=n.fs||16;body.style.setProperty('--fs',(_fsv-1)+'px');if($('#fsr')){$('#fsr').value=_fsv;$('#fsv').textContent=_fsv}
  sk.classList.toggle('on',!!n.sketch||!!pen);$('#tpen').classList.toggle('on',sk.classList.contains('on'));
  $('#es').scrollTop=0;$('#edit').classList.add('on');app.classList.add('ed');setDock(false);
   requestAnimationFrame(()=>{if(sk.classList.contains('on'))loadSk(n)});
@@ -1233,7 +1250,7 @@ function upd(){
   $('[data-f=bold]').classList.toggle('on',document.queryCommandState('bold'))}
  else sel.classList.remove('on');
 }
-$$('#kbd,#sel').forEach(el=>{el.addEventListener('pointerdown',e=>e.preventDefault());
+$$('#kbd,#sel').forEach(el=>{el.addEventListener('pointerdown',e=>{if(e.target.closest('.fsrow'))return;e.preventDefault()});
  el.addEventListener('click',async e=>{const b=e.target.closest('[data-f]');if(!b)return;const f=b.dataset.f;
   if(f==='bold')document.execCommand('bold');
   else if(f==='ul')document.execCommand('insertUnorderedList');
@@ -1246,8 +1263,64 @@ $$('#kbd,#sel').forEach(el=>{el.addEventListener('pointerdown',e=>e.preventDefau
   else if(f==='all')document.execCommand('selectAll');
   else if(f==='paste'){try{document.execCommand('insertText',false,await navigator.clipboard.readText())}catch(_){toast('Paste with your keyboard')}}
   body.dispatchEvent(new Event('input'));upd()})});
-$('#sz').onclick=e=>{const b=e.target.closest('button');if(!b)return;const n=cur();n.fs=+b.dataset.s;body.style.setProperty('--fs',n.fs-1+'px');$$('#sz button').forEach(x=>x.classList.toggle('on',x===b));save()};
-$('#sz').onpointerdown=e=>e.preventDefault();
+const FSR=$('#fsr'),FSV=$('#fsv');
+let fsDrag=0;
+function fsSet(v,live){
+ v=Math.max(+FSR.min,Math.min(+FSR.max,v));
+ FSR.value=v;FSV.textContent=v;
+ body.style.setProperty('--fs',(v-1)+'px');
+ const n=cur();if(n){n.fs=v;if(!live)save()}
+}
+function fsFromX(x){const r=FSR.getBoundingClientRect();const t=Math.max(0,Math.min(1,(x-r.left)/r.width));return Math.round(+FSR.min+t*(+FSR.max-+FSR.min))}
+FSR.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fsDrag=1;try{FSR.setPointerCapture(e.pointerId)}catch(_){}fsSet(fsFromX(e.clientX),1)});
+FSR.addEventListener('pointermove',e=>{if(!fsDrag)return;e.preventDefault();fsSet(fsFromX(e.clientX),1)});
+['pointerup','pointercancel'].forEach(t=>FSR.addEventListener(t,()=>{if(!fsDrag)return;fsDrag=0;fsSet(+FSR.value,0)}));
+FSR.addEventListener('input',()=>fsSet(+FSR.value,1));
+FSR.addEventListener('change',()=>fsSet(+FSR.value,0));
+/* text case */
+const CASE_LBL={upper:'UPPERCASE',lower:'lowercase',title:'Title Case',sentence:'Sentence case'};
+function mapCase(t,mode){
+ if(mode==='upper')return t.toUpperCase();
+ if(mode==='lower')return t.toLowerCase();
+ if(mode==='title')return t.replace(/\S+/g,w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase());
+ return t.toLowerCase().replace(/(^\s*[a-z])|([.!?]["')\]]?\s+[a-z])/g,m=>m.toUpperCase());
+}
+function applyCase(mode){
+ if(!body||body.hidden){toast('Open a note first');return}
+ const s=getSelection();
+ const inBody=s.rangeCount>0&&!s.isCollapsed&&body.contains(s.anchorNode)&&body.contains(s.focusNode);
+ let range;
+ if(inBody)range=s.getRangeAt(0).cloneRange();
+ else{range=document.createRange();range.selectNodeContents(body)}
+ const root=range.commonAncestorContainer;
+ const host=root.nodeType===3?root.parentNode:root;
+ const w=document.createTreeWalker(host,NodeFilter.SHOW_TEXT,null);
+ const nodes=[];let t;
+ while(t=w.nextNode()){if(range.intersectsNode(t)&&t.data.replace(/\s/g,''))nodes.push(t)}
+ if(!nodes.length){toast('Nothing to change');return}
+ const sc=range.startContainer,so=range.startOffset,ec=range.endContainer,eo=range.endOffset;
+ let capNext=true;
+ nodes.forEach(nd=>{
+  const a=(nd===sc)?so:0;
+  const b=(nd===ec)?eo:nd.data.length;
+  if(b<=a)return;
+  const mid=nd.data.slice(a,b);
+  let out;
+  if(mode==='sentence'){
+   out='';
+   for(let i=0;i<mid.length;i++){
+    const ch=mid[i];
+    if(capNext&&/[A-Za-z]/.test(ch)){out+=ch.toUpperCase();capNext=false;continue}
+    out+=ch.toLowerCase();
+    if(ch==='.'||ch==='!'||ch==='?')capNext=true;
+   }
+  } else out=mapCase(mid,mode);
+  nd.data=nd.data.slice(0,a)+out+nd.data.slice(b);
+ });
+ const n=cur();if(n){n.html=body.innerHTML;n.t=Date.now();save()}
+ toast(inBody?CASE_LBL[mode]+' applied to selection':CASE_LBL[mode]+' applied to note');
+}
+$('#caserow').onclick=e=>{const b=e.target.closest('[data-c]');if(b)applyCase(b.dataset.c)};
 $('#shb').onclick=()=>{hid=S.id;xmenu()};
 
 /* in-app keyboard */
@@ -1340,7 +1413,7 @@ $('#recent').onclick=e=>{const b=e.target.closest('[data-r]');if(b&&isEd(documen
 $('#tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('.pane').forEach(q=>q.classList.toggle('on',q.dataset.p===b.dataset.t));
  if(b.dataset.t==='3')syncClip()};
 drawRec();
-kbd.addEventListener('pointerdown',e=>e.preventDefault());
+kbd.addEventListener('pointerdown',e=>{if(e.target.closest('.fsrow'))return;e.preventDefault()});
 $$('.tb').forEach(b=>b.addEventListener('pointerdown',e=>e.preventDefault()));
 $('#edit').addEventListener('focusin',e=>{if(isEd(e.target)){app.style.setProperty('--kh',(kbd.offsetHeight+8)+'px');app.classList.add('kb')}});
 $('#edit').addEventListener('focusout',()=>setTimeout(()=>{if(!isEd(document.activeElement))app.classList.remove('kb')},60));
