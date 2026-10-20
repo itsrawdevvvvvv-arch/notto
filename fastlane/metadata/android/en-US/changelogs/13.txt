@@ -1,0 +1,13 @@
+Notto 1.8.0
+
+New
+• Calendar — find it in the + menu.
+  A month view in the app's own style: tap any day to mark it done (it fills
+  and gets a line through it), tap again to unmark. The header shows how many
+  days you've marked, with a progress bar that fills as you go. Arrows move
+  between months; the calendar badge jumps back to today.
+• Marks are saved on your device.
+
+Fixed
+• The Calendar, Clock and Group screens now follow the light theme.
+  They were stuck on dark even when the app was in light mode.
